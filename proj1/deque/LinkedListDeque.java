@@ -44,7 +44,7 @@ public class LinkedListDeque<type> implements Iterable<type>,Deque<type> {
     @Override
     public void printDeque(){
         IntNode p = sentinel.next;
-        while(p != sentinel){
+        while (p != sentinel) {
             System.out.print(p.item+" ");
             p = p.next;
         }
@@ -52,7 +52,9 @@ public class LinkedListDeque<type> implements Iterable<type>,Deque<type> {
     }
     @Override
     public type removeFirst(){
-        if(this.isEmpty()) return null;
+        if (this.isEmpty()) {
+            return null;
+        }
         type temp = sentinel.next.item;
         sentinel.next = sentinel.next.next;
         size -= 1;
@@ -60,7 +62,9 @@ public class LinkedListDeque<type> implements Iterable<type>,Deque<type> {
     }
     @Override
     public type removeLast(){
-        if(this.isEmpty()) return null;
+        if (this.isEmpty()) {
+            return null;
+        }
         type temp = sentinel.prev.item;
         sentinel.prev.prev.next = sentinel;
         sentinel.prev = sentinel.prev.prev;
@@ -69,9 +73,11 @@ public class LinkedListDeque<type> implements Iterable<type>,Deque<type> {
     }
     @Override
     public type get(int index){
-        if(this.isEmpty()) return null;
+        if (this.isEmpty()) {
+            return null;
+        }
         IntNode p = sentinel.next;
-        while (index != 0){
+        while (index != 0) {
             p = p.next;
             index -= 1;
         }
@@ -96,14 +102,24 @@ public class LinkedListDeque<type> implements Iterable<type>,Deque<type> {
     }
     @Override
     public boolean equals(Object o){
-        if(this == o) return true;
-        if(o == null) return false;
-        if(o.getClass() != this.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (o.getClass() != this.getClass()) {
+            return false;
+        }
         LinkedListDeque p = (LinkedListDeque) o;
-        if(p.size() != size) return false;
+        if (p.size() != size) {
+            return false;
+        }
         IntNode k = p.sentinel.next;
-        for(type i : this){
-            if(i != k.item) return false;
+        for (type i : this) {
+            if (i != k.item) {
+                return false;
+            }
             k = k.next;
         }
         return true;

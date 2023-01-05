@@ -1,10 +1,10 @@
 package deque;
 import java.util.Iterator;
 public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
-    T[] item;
-    int size;
-    int nextFirst;
-    int nextLast;
+    private T[] item;
+    private int size;
+    private int nextFirst;
+    private int nextLast;
     public ArrayDeque(){
         item = (T []) new Object[8];
         size = 0;
@@ -25,7 +25,7 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
         }
         return current;
     }
-    public void resize(int s){//bug10-12
+    private void resize(int s){//bug10-12
         T[] temp = (T []) new Object[s];
         int current_first = findnext(nextFirst);
         int current_last = findbefore(nextLast);
@@ -151,19 +151,22 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
     }
     private class Array_Iterator implements Iterator{
         int pos;
+        int count;
         public Array_Iterator(){
             pos = findnext(nextFirst);
+            count = 0;
         }
 
         @Override
         public boolean hasNext() {
-            return size > pos;
+            return size > count;
         }
 
         @Override
         public T next() {
             T i = item[pos];
             pos += 1;
+            count += 1;
             return i;
         }
     }

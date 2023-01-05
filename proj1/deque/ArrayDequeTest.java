@@ -144,13 +144,18 @@ public class ArrayDequeTest {
     @Test
     public void equalsTest(){
         ArrayDeque<Integer> lst1 = new ArrayDeque<>();
-        lst1.addFirst(3);
-        lst1.addFirst(2);
-        lst1.addFirst(1);
+        for(int i = 0; i < 100; i++){
+            lst1.addFirst(i);
+        }
         ArrayDeque<Integer> lst2 = new ArrayDeque<>();
-        lst2.addLast(1);
-        lst2.addLast(2);
-        lst2.addLast(3);
-        assertEquals(true,lst1.equals(lst2));
+        for(int i = 99; i >=0; i--){
+            if(i == 50){
+                lst2.addFirst(1);
+            }else {
+                lst2.addLast(i);
+            }
+
+        }
+        assertEquals(false,lst1.equals(lst2));
     }
 }
