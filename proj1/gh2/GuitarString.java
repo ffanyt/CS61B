@@ -24,6 +24,10 @@ public class GuitarString {
         //       cast the result of this division operation into an int. For
         //       better accuracy, use the Math.round() function before casting.
         //       Your should initially fill your buffer array with zeros.
+        int len = (int) Math.round(SR / frequency);
+        for(int i = 0; i < len; i++){
+            buffer.addLast(0.0);
+        }
     }
 
 
