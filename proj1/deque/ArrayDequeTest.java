@@ -1,7 +1,10 @@
 package deque;
 
+import edu.princeton.cs.algs4.StdRandom;
 import jh61b.junit.In;
 import org.junit.Test;
+
+import java.util.Random;
 
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
@@ -179,5 +182,22 @@ public class ArrayDequeTest {
         }
         assertEquals(true,al.equals(ll));
         assertEquals(true,ll.equals(al));
+    }
+    @Test
+    public void randTest(){
+        ArrayDeque<Integer> l = new ArrayDeque<>();
+        for(int i = 0; i < 10000; i++){
+            int j = 0;
+            int p = 0;
+            int k = StdRandom.uniform(0,5);
+            if(k == 0){
+                l.addLast(j);
+                j += 1;
+            } else if (k == 1) {
+                l.removeLast();
+            } else if (k == 2) {
+                l.removeFirst();
+            }
+        }
     }
 }

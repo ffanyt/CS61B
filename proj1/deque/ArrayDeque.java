@@ -177,36 +177,19 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
         if (o == null) {
             return false;
         }
-        Class a = o.getClass();
-        Class b = this.getClass();
-        Class c = LinkedListDeque.class;
-        if ((a != b) && (a != c)) {
+        if (!(o instanceof Deque)) {
             return false;
         }
-        if (a == b) {
-            ArrayDeque p = (ArrayDeque) o;
-            if (p.size() != size) {
+        Deque p = (Deque) o;
+        if (p.size() != size) {
+            return false;
+        }
+        int j = 0;
+        for (T i : this) {
+            if (!i.equals(p.get(j))) {
                 return false;
             }
-            int j = 0;
-            for (T i : this) {
-                if (!i.equals(p.get(j))) {
-                    return false;
-                }
-                j += 1;
-            }
-        } else {
-            LinkedListDeque p = (LinkedListDeque) o;
-            if (p.size() != size) {
-                return false;
-            }
-            int j = 0;
-            for (T i : this) {
-                if (!i.equals(p.get(j))) {
-                    return false;
-                }
-                j += 1;
-            }
+            j += 1;
         }
         return true;
     }
