@@ -1,7 +1,4 @@
 package deque;
-import jh61b.junit.In;
-
-import java.io.StringReader;
 import java.util.Iterator;
 public class LinkedListDeque<type> implements Iterable<type>,Deque<type> {
     public class IntNode{
@@ -56,6 +53,7 @@ public class LinkedListDeque<type> implements Iterable<type>,Deque<type> {
             return null;
         }
         type temp = sentinel.next.item;
+        sentinel.next.next.prev = sentinel;
         sentinel.next = sentinel.next.next;
         size -= 1;
         return temp;
@@ -115,12 +113,12 @@ public class LinkedListDeque<type> implements Iterable<type>,Deque<type> {
         if (p.size() != size) {
             return false;
         }
-        IntNode k = p.sentinel.next;
+        int j = 0;
         for (type i : this) {
-            if (i != k.item) {
+            if (i != p.get(j)) {
                 return false;
             }
-            k = k.next;
+            j += 1;
         }
         return true;
     }

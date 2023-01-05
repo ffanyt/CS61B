@@ -149,13 +149,9 @@ public class ArrayDequeTest {
         }
         ArrayDeque<Integer> lst2 = new ArrayDeque<>();
         for(int i = 99; i >=0; i--){
-            if(i == 50){
-                lst2.addFirst(1);
-            }else {
                 lst2.addLast(i);
-            }
 
         }
-        assertEquals(false,lst1.equals(lst2));
+        assertEquals(true,lst1.equals(lst2));
     }
 }

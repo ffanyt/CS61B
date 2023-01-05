@@ -165,7 +165,7 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
         @Override
         public T next() {
             T i = item[pos];
-            pos += 1;
+            pos = findnext(pos);
             count += 1;
             return i;
         }

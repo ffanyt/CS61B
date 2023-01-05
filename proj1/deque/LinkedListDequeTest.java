@@ -140,15 +140,49 @@ public class LinkedListDequeTest {
         for(int i = 0; i < 100; i++){
             lst1.addFirst(i);
         }
-        ArrayDeque<Integer> lst2 = new ArrayDeque<>();
+        LinkedListDeque<Integer> lst2 = new LinkedListDeque<>();
         for(int i = 99; i >=0; i--){
-            if(i == 50){
-                lst2.addFirst(1);
-            }else {
                 lst2.addLast(i);
-            }
-
         }
-        assertEquals(false,lst1.equals(lst2));
+        assertEquals(true,lst1.equals(lst2));
+        for(int i = 0; i < 50; i++){
+            lst1.removeFirst();
+        }
+        LinkedListDeque lst3 = new LinkedListDeque<>();
+        for(int i = 49; i >=0; i--){
+            lst3.addLast(i);
+        }
+        assertEquals(true,lst3.equals(lst1));
+        for(int i = 0; i < 25; i++){
+            lst1.removeLast();
+        }
+        LinkedListDeque lst4 = new LinkedListDeque<>();
+        for(int i = 49; i >= 25; i--){
+            lst4.addLast(i);
+        }
+
+
+        assertEquals(true,lst4.equals(lst1));
+    }
+    @Test
+    public void removeTest(){
+        LinkedListDeque<Integer> lst = new LinkedListDeque<>();
+        for(int i = 0; i < 20; i++){
+            lst.addLast(i);
+        }
+        for(int i = 0; i < 15; i++){
+            lst.removeFirst();
+        }
+        lst.printDeque();
+    }
+    @Test
+    public void getTest(){
+        LinkedListDeque<Integer> lst = new LinkedListDeque<>();
+        for(int i = 0; i < 100; i++){
+            lst.addLast(i);
+        }
+        for(int i = 0; i < 100; i++){
+            assertEquals(true,lst.get(i) == i);
+        }
     }
 }
