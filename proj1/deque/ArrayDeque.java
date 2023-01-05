@@ -184,9 +184,9 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
         if (p.size() != size) {
             return false;
         }
-        int j = p.findnext(p.nextFirst);
-        for (T i:this) {
-            if (i != p.item[j]) {
+        int j = 0;
+        for (T i : this) {
+            if (i != p.get(j)) {
                 return false;
             }
             j += 1;
