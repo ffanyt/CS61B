@@ -79,6 +79,7 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
             p = p.next;
             index -= 1;
         }
+        T k = p.item;
         return p.item;
     }
     public T getRecursive(int index) {
@@ -98,7 +99,7 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
     }
     private class LlIterator implements Iterator {
         private IntNode p;
-        public LlIterator() {
+        private LlIterator() {
             p = sentinel.next;
         }
         public boolean hasNext() {
@@ -118,19 +119,36 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
         if (o == null) {
             return false;
         }
-        if (o.getClass() != this.getClass()) {
+        Class a = o.getClass();
+        Class b = this.getClass();
+        Class c = ArrayDeque.class;
+        if ((a != b) && (a != c)) {
             return false;
         }
-        LinkedListDeque p = (LinkedListDeque) o;
-        if (p.size() != size) {
-            return false;
-        }
-        int j = 0;
-        for (T i : this) {
-            if (i != p.get(j)) {
+        if (a == b) {
+            LinkedListDeque p = (LinkedListDeque) o;
+            if (p.size() != size) {
                 return false;
             }
-            j += 1;
+            int j = 0;
+            for (T i : this) {
+                if (!i.equals(p.get(j))) {
+                    return false;
+                }
+                j += 1;
+            }
+        } else {
+            ArrayDeque p = (ArrayDeque) o;
+            if (p.size() != size) {
+                return false;
+            }
+            int j = 0;
+            for (T i : this) {
+                if (!i.equals(p.get(j))) {
+                    return false;
+                }
+                j += 1;
+            }
         }
         return true;
     }

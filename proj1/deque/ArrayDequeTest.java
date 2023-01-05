@@ -154,4 +154,30 @@ public class ArrayDequeTest {
         }
         assertEquals(true,lst1.equals(lst2));
     }
+    @Test
+    public void deepequalsTest(){
+        ArrayDeque<Integer> l = new ArrayDeque<>();
+        for(int i = 0; i < 20000; i++){
+            l.addLast(i);
+        }
+        ArrayDeque<Integer> l1 = new ArrayDeque<>();
+        for(int i = 19999; i >= 0; i--){
+            l1.addFirst(i);
+        }
+        boolean k = l.equals(l1);
+        assertEquals(true,k);
+    }
+    @Test
+    public void difListequalsTest(){
+        ArrayDeque<Integer> al = new ArrayDeque<>();
+        for(int i = 0; i < 2000; i++){
+            al.addLast(i);
+        }
+        LinkedListDeque<Integer> ll = new LinkedListDeque<>();
+        for(int i = 0; i < 2000; i++){
+            ll.addLast(i);
+        }
+        assertEquals(true,al.equals(ll));
+        assertEquals(true,ll.equals(al));
+    }
 }

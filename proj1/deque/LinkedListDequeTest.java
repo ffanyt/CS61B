@@ -185,4 +185,17 @@ public class LinkedListDequeTest {
             assertEquals(true,lst.get(i) == i);
         }
     }
+    @Test
+    public void deepequalsTest(){
+        LinkedListDeque<Integer> l = new LinkedListDeque<>();
+        for(int i = 0; i < 200; i++){
+            l.addLast(i);
+        }
+        LinkedListDeque<Integer> l1 = new LinkedListDeque<>();
+        for(int i = 199; i >= 0; i--){
+            l1.addFirst(i);
+        }
+        boolean k = l.equals(l1);
+        assertEquals(true,k);
+    }
 }

@@ -27,24 +27,24 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
     }
     private void resize(int s) {
         T[] temp = (T []) new Object[s];
-        int Currentfirst = findnext(nextFirst);
-        int Currentlast = findbefore(nextLast);
+        int currentfirst = findnext(nextFirst);
+        int cunrrentlast = findbefore(nextLast);
         if (s > item.length) {
-            if (Currentfirst <= Currentlast) {
-                for (int i = Currentfirst; i <= Currentlast; i++) {
+            if (currentfirst <= cunrrentlast) {
+                for (int i = currentfirst; i <= cunrrentlast; i++) {
                     temp[i] = item[i];
                 }
                 item = temp;
-                nextFirst = findbefore(Currentfirst);
-                nextLast = findnext(Currentlast);
+                nextFirst = findbefore(currentfirst);
+                nextLast = findnext(cunrrentlast);
 
             } else {
                 int j = 0;
-                for (int i = Currentfirst; i < item.length; i++) {
+                for (int i = currentfirst; i < item.length; i++) {
                     temp[j] = item[i];
                     j += 1;
                 }
-                for (int i = 0; i <= Currentlast; i++) {
+                for (int i = 0; i <= cunrrentlast; i++) {
                     temp[j] = item[i];
                     j += 1;
                 }
@@ -52,9 +52,9 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
                 nextLast = j;
             }
         } else {
-            if (Currentfirst <= Currentlast) {
+            if (currentfirst <= cunrrentlast) {
                 int j = 0;
-                for (int i = Currentfirst; i <= Currentlast; i++) {
+                for (int i = currentfirst; i <= cunrrentlast; i++) {
                     temp[j] = item[i];
                     j += 1;
                 }
@@ -62,11 +62,11 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
                 nextFirst = temp.length - 1;
             } else {
                 int j = 0;
-                for (int i = Currentfirst; i < item.length; i++) {
+                for (int i = currentfirst; i < item.length; i++) {
                     temp[j] = item[i];
                     j += 1;
                 }
-                for (int i = 0; i <= Currentlast; i++) {
+                for (int i = 0; i <= cunrrentlast; i++) {
                     temp[j] = item[i];
                     j += 1;
                 }
@@ -152,7 +152,7 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
     private class ArrayIterator implements Iterator {
         private int pos;
         private int count;
-        public ArrayIterator() {
+        private ArrayIterator() {
             pos = findnext(nextFirst);
             count = 0;
         }
@@ -177,19 +177,36 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
         if (o == null) {
             return false;
         }
-        if (o.getClass() != this.getClass()) {
+        Class a = o.getClass();
+        Class b = this.getClass();
+        Class c = LinkedListDeque.class;
+        if ((a != b) && (a != c)) {
             return false;
         }
-        ArrayDeque p = (ArrayDeque) o;
-        if (p.size() != size) {
-            return false;
-        }
-        int j = 0;
-        for (T i : this) {
-            if (i != p.get(j)) {
+        if (a == b) {
+            ArrayDeque p = (ArrayDeque) o;
+            if (p.size() != size) {
                 return false;
             }
-            j += 1;
+            int j = 0;
+            for (T i : this) {
+                if (!i.equals(p.get(j))) {
+                    return false;
+                }
+                j += 1;
+            }
+        } else {
+            LinkedListDeque p = (LinkedListDeque) o;
+            if (p.size() != size) {
+                return false;
+            }
+            int j = 0;
+            for (T i : this) {
+                if (!i.equals(p.get(j))) {
+                    return false;
+                }
+                j += 1;
+            }
         }
         return true;
     }

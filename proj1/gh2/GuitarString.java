@@ -22,7 +22,7 @@ public class GuitarString {
     /* Pluck the guitar string by replacing the buffer with white noise. */
     public void pluck() {
         int len = buffer.size();
-        for (int i = 0 ; i < len; i++) {
+        for (int i = 0; i < len; i++) {
             double rand = 0;
             boolean flag = true;
             buffer.removeFirst();
