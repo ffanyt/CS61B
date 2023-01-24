@@ -82,13 +82,11 @@ public class Repository {
     public static void commit(String ms) {
         checkinilization();
         if (ms == "") {
-            System.out.println("Please enter a commit message.");
-            System.exit(0);
+            printError("Please enter a commit message.");
         }
         List stageList = plainFilenamesIn(STAGE_DIR);
         if (stageList.size() == 0) {
-            System.out.println("No changes added to the commit.");
-            System.exit(0);
+            printError("No changes added to the commit.");
         }
         HEAD = readHEAD();
         System.out.println("----------");
@@ -96,7 +94,7 @@ public class Repository {
         Commit cm = new Commit(ms);
         cm.save();
         String newHEAD = cm.getHashcode();
-        //updateBranch(newHEAD);
+        updateBranch(newHEAD);
         updateHEAD(newHEAD);
         deletStage();//清空stage
     }
@@ -260,7 +258,11 @@ public class Repository {
         }
     }
     public static void branch(String branchName) {
-
+        File branchFile = join(BRANCH_DIR, branchName);
+        if (branchFile.exists()) {
+            printError("A branch with that name already exists.");
+        }
+        writeObject(branchFile, HEAD);
     }
     private static void writeBlob2File(Blob blob) {
         byte[] content = blob.getContent();
@@ -277,6 +279,7 @@ public class Repository {
             if (cm1 == subCommitName) {
                 commit = Commit.readCommit(commitName);
                 flag = true;
+                break;
             }
         }
         if (!flag) {
@@ -284,6 +287,17 @@ public class Repository {
         }
         rewriteFileByCommit(commit, cm2);
         deleteStageFile(cm2);
+    }
+    public static void rm_branch(String branchName) {
+        File branchFile = join(BRANCH_DIR, branchName);
+        if (!branchFile.exists()) {
+            printError("A branch with that name does not exist.");
+        }
+        String branchHash = readObject(branchFile, String.class);
+        if (branchHash == HEAD) {
+            printError("Cannot remove the current branch.");
+        }
+        branchFile.delete();
     }
     private static void rewriteFileByCommit(Commit cm, String fileName) {
         HashMap currentBlobNode = cm.getBlob();//从当前commit信息获得Blob的hashmap
@@ -342,7 +356,7 @@ public class Repository {
     private static String readHEAD() {
         return readObject(HEAD_File, String.class);
     }
-    private static void updateBranch(String HashCode) {//未写完
+    private static void updateBranch(String HashCode) {//暂时未考虑到HEAD指针不在分支顶点的情况
         List branchList = plainFilenamesIn(BRANCH_DIR);
         for (Object i : branchList) {
             File breachFILE = join(BRANCH_DIR, i.toString());
