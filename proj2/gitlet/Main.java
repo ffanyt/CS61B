@@ -18,7 +18,7 @@ public class Main {
         switch(firstArg) {
             case "init":
                 validArgs(args, 1);
-                Repository.Init();
+                Repository.init();
                 break;
             case "add":
                 Repository.checkinilization();
@@ -49,7 +49,7 @@ public class Main {
             case "global_log":
                 Repository.checkinilization();
                 validArgs(args, 1);
-                Repository.global_Log();
+                Repository.globalLog();
                 break;
             case "find":
                 Repository.checkinilization();
@@ -99,7 +99,7 @@ public class Main {
             case "rm-branch":
                 Repository.checkinilization();
                 validArgs(args, 2);
-                Repository.rm_Branch(args[1]);
+                Repository.rmBranch(args[1]);
                 break;
             case "reset":
                 Repository.checkinilization();

@@ -35,7 +35,7 @@ public class Repository {
     public static final File REMOVEL_DIR = join(GITLET_DIR, "remove");
     private static Commit currentCommit;
     private static String HEAD;
-    public static void Init() {
+    public static void init() {
         if (GITLET_DIR.exists()) {
             System.out.println("A Gitlet version-control system already exists in the current directory.");
             System.exit(0);
@@ -46,28 +46,28 @@ public class Repository {
             BRANCH_DIR.mkdir();
             COMMIT_DIR.mkdir();
             REMOVEL_DIR.mkdir();
-            init_Commit();
-            init_HEAD();
-            init_Branch();
+            initCommit();
+            initHEAD();
+            initBranch();
         }
     }
-    public static void init_Branch() {
+    public static void initBranch() {
         File master = join(BRANCH_DIR, "master");
         writeContents(master, currentCommit.getHashcode());
     }
-    public static void init_HEAD() {
+    public static void initHEAD() {
         HEAD = currentCommit.getHashcode();
         writeObject(HEAD_FILE, HEAD);
     }
-    public static void init_Commit() {
+    public static void initCommit() {
         currentCommit = new Commit();
         currentCommit.save();
     }
     public static void add(String file) {
         checkinilization();
-        HEAD =readHEAD();
-        File current_file = Repository.getWorkingFile(file);
-        if (!current_file.exists()) {
+        HEAD = readHEAD();
+        File currentFile = Repository.getWorkingFile(file);
+        if (!currentFile.exists()) {
             System.out.println("File does not exist.");
             System.exit(0);
         }
@@ -101,8 +101,8 @@ public class Repository {
         File workingFILE = getWorkingFile(file);
         File stageFILE = Stage.getStageFile(file);
 
-        Commit currentCommit = Commit.readCommit(HEAD);
-        HashMap blobNode = currentCommit.getBlob();
+        Commit curCommit = Commit.readCommit(HEAD);
+        HashMap blobNode = curCommit.getBlob();
         if (blobNode.containsKey(file)) {
             if (stageFILE.exists()) {
                 Stage removalFILE = readObject(stageFILE, Stage.class);
@@ -129,8 +129,8 @@ public class Repository {
     }
     public static void log() {
         HEAD = readHEAD();
-        Commit currentCommit = Commit.readCommit(HEAD);
-        Commit tempCommit = currentCommit;
+        Commit curCommit = Commit.readCommit(HEAD);
+        Commit tempCommit = curCommit;
         while (true) {
             printLog(tempCommit);
             if (tempCommit.getParent().size() == 0) {
@@ -142,7 +142,7 @@ public class Repository {
             tempCommit = Commit.readCommit(parentNode);
         }
     }
-    public static void global_Log() {
+    public static void globalLog() {
         printORfind("print", "");
     }
     public static void find(String ms) {
@@ -152,7 +152,7 @@ public class Repository {
         HEAD = readHEAD();
         //String temp = HEAD;
         //System.out.println(temp);
-        Commit currentCommit = Commit.readCommit(HEAD);
+        Commit curCommit = Commit.readCommit(HEAD);
         System.out.println("=== Branches ===");
         List branchList = plainFilenamesIn(BRANCH_DIR);
         if (branchList.size() != 0) {
@@ -210,8 +210,8 @@ public class Repository {
             }
             updateWorkingdirByCommit(branchInfo);
         } else {
-            Commit currentCommit = Commit.readCommit(HEAD);
-            rewriteFileByCommit(currentCommit, cm);
+            Commit curCommit = Commit.readCommit(HEAD);
+            rewriteFileByCommit(curCommit, cm);
             deleteStageFile(cm);
         }
     }
@@ -248,7 +248,7 @@ public class Repository {
         rewriteFileByCommit(commit, cm2);
         deleteStageFile(cm2);
     }
-    public static void rm_Branch(String branchName) {
+    public static void rmBranch(String branchName) {
         File branchFile = join(BRANCH_DIR, branchName);
         if (!branchFile.exists()) {
             printError("A branch with that name does not exist.");
@@ -286,9 +286,9 @@ public class Repository {
     }
     private static void updateWorkingdirByCommit(String newCommitID) { ////bug
         Commit newCommit = Commit.readCommit(newCommitID);
-        Commit currentCommit = Commit.readCommit(HEAD);
+        Commit curCommit = Commit.readCommit(HEAD);
         HashMap commitBlobNode = newCommit.getBlob();
-        HashMap currentBlobNode = currentCommit.getBlob();
+        HashMap currentBlobNode = curCommit.getBlob();
         for (Object key : commitBlobNode.keySet()) {
             String keyString = key.toString();
             if (!currentBlobNode.containsKey(keyString)) {
@@ -306,12 +306,12 @@ public class Repository {
         }
         for (Object key : commitBlobNode.keySet()) {
             String keyString = key.toString();
-            Object BlobHash = commitBlobNode.get(keyString);
-            String blobHashString = BlobHash.toString();
+            Object blobHash = commitBlobNode.get(keyString);
+            String blobHashString = blobHash.toString();
 
             if (currentBlobNode.containsKey(keyString)) {
                 Object hash = currentBlobNode.get(keyString);
-                if (hash.equals(BlobHash)) {
+                if (hash.equals(blobHash)) {
                     continue;
                 } else {
                     Blob newblob = Blob.readBlob(blobHashString);
@@ -359,7 +359,7 @@ public class Repository {
                 }
             }
         }
-        if (cmd.equals("find") && found == false) {
+        if (cmd.equals("find") && !found) {
             printError("Found no commit with that message.");
         }
     }

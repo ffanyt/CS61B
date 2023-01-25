@@ -34,7 +34,6 @@ public class Stage implements Serializable {
 //                System.out.println("the same name file of hash is:" + b.toString());
                 if (currentCommitBlob.containsValue(this.hashCode)) {
                     //如果和当前Hash值相同，说明现在add的文件和commit版本相同
-                    System.out.println("该add文件在当前commit存在");
                     if (this.stageFile.exists()) {
                         this.stageFile.delete();
                         return;
