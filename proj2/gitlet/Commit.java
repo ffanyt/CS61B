@@ -85,8 +85,6 @@ public class Commit implements Serializable {
                 Blob newBlob = new Blob(stageFILENAME);
                 newBlob.save();
                 newMap.put(stageFILENAME, newBlob.getHashCode());
-                //String filename = stageFILENAME;
-                //System.out.println("hash:"+newBlob.getHashCode());
             }
         }
 
@@ -96,8 +94,9 @@ public class Commit implements Serializable {
             if (newMap.containsKey(removeStageFile)) {
                 newMap.remove(removeStageFile);
             }
+            File rmFile = join(Repository.REMOVEL_DIR, removeStageFile);
+            rmFile.delete();
         }
-        Repository.REMOVEL_DIR.delete();
         return newMap;
     }
     private String caltimestamp(Date time) {
