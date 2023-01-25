@@ -110,10 +110,15 @@ public class Repository {
                     workingFILE.delete();
                 }
             } else {
-                Stage removalFILE = new Stage(file);
-                removalFILE.saveRemove();
                 if (workingFILE.exists()) {
+                    Stage removalFILE = new Stage(file);
+                    removalFILE.saveRemove();
                     workingFILE.delete();
+                } else {
+                    Object rmBlobName = blobNode.get(file);
+                    Blob rmBlob = Blob.readBlob(rmBlobName.toString());
+                    Stage rmStage = new Stage(rmBlob);
+                    rmStage.saveRemove();
                 }
             }
         } else {
@@ -296,7 +301,8 @@ public class Repository {
             if (!currentBlobNode.containsKey(keyString)) {
                 File dir = join(CWD, keyString);
                 if (dir.exists()) {
-                    printError("There is an untracked file in the way; " +
+                    printError("There is an untracked file in the way; "
+                            +
                             "delete it, or add and commit it first.");
                 }
             }
