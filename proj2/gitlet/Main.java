@@ -10,8 +10,12 @@ public class Main {
      */
     public static void main(String[] args) {
         // TODO: what if args is empty?
+        String[] arg = new String[3];
+        arg[0] = "checkout";
+        arg[1] = "--";
+        arg[2] = "123.txt";
         String firstArg = args[0];
-        //String firstArg = "global_log";
+//        String firstArg = "checkout";
         switch(firstArg) {
             case "init":
                 // TODO: handle the `init` command
@@ -20,80 +24,90 @@ public class Main {
                 break;
             case "add":
                 // TODO: handle the `add [filename]` command
+                Repository.checkinilization();
                 validArgs(args, 2);
                 String file = args[1];
-//                String file = "test.txt";
+//                String file = "wug.txt";
                 Repository.add(file);
                 break;
             case "commit":
+                Repository.checkinilization();
                 validArgs(args, 2);
                 String ms = args[1];
                 //String ms = "test";
-//                System.out.println("指行了commit指令");
-//                System.out.println("message是：" + ms);
                 Repository.commit(ms);
                 break;
             case "rm":
-                validArgs(args, 2);
                 Repository.checkinilization();
+                validArgs(args, 2);
                 String rmfile = args[1];
-//                String rmfile = "test.txt";
+                //String rmfile = "123.txt";
                 Repository.rm(rmfile);
                 break;
             case "log":
-                validArgs(args, 1);
                 Repository.checkinilization();
+                validArgs(args, 1);
                 Repository.log();
                 break;
             case "global_log":
-                validArgs(args, 1);
                 Repository.checkinilization();
+                validArgs(args, 1);
                 Repository.global_log();
                 break;
             case "find":
-                validArgs(args, 2);
                 Repository.checkinilization();
+                validArgs(args, 2);
                 String message = args[1];
-                //String message = "ms";
+                //String message = "initial commit";
                 Repository.find(message);
                 break;
             case "status":
-                validArgs(args, 1);
                 Repository.checkinilization();
+                validArgs(args, 1);
                 Repository.status();
                 break;
             case "checkout":
+                Repository.checkinilization();
                 int len = args.length;
+//                int len = 4;
                 switch (len) {
                     case 2:
                         Repository.checkout(args[1], 0);
                         break;
                     case 3:
-                        if (args[1] != "--") {
+                        if (!args[1].equals("--")) {
                             System.out.println("Incorrect operands.");
                             System.exit(0);
                         }
                         Repository.checkout(args[2], 1);
+//                        Repository.checkout(arg[2], 1);
                         break;
                     case 4:
-                        if (args[2] != "--") {
+                        if (!args[2].equals("--")) {
                             System.out.println("Incorrect operands.");
                             System.exit(0);
                         }
                         Repository.checkout(args[1], args[3]);
+//                        Repository.checkout("2615af", "wug.txt");
                         break;
                     default:
                         Repository.printError("Incorrect operands.");
                 }
                 break;
             case "branch":
+                Repository.checkinilization();
                 validArgs(args, 2);
                 Repository.branch(args[1]);
                 break;
             case "rm-branch":
+                Repository.checkinilization();
                 validArgs(args, 2);
                 Repository.rm_branch(args[1]);
                 break;
+            case "reset":
+                Repository.checkinilization();
+                validArgs(args,2);
+                Repository.reset(args[1]);
             default:
                 System.out.println("No command with that name exists.");
                 System.exit(0);

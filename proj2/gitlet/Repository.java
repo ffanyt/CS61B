@@ -68,12 +68,15 @@ public class Repository {
     }
     public static void add(String file) {
         checkinilization();
+        HEAD =readHEAD();
         File current_file = Repository.getWorkingFile(file);
         if (!current_file.exists()) {
             System.out.println("File does not exist.");
             System.exit(0);
         }
         Stage stageFile = new Stage(file);
+//        System.out.println("creating new stage");
+//        System.out.println("this stage's hash is:" + stageFile.getHashCode());
         stageFile.save();
     }
     public static File getWorkingFile(String file) {
@@ -89,35 +92,33 @@ public class Repository {
             printError("No changes added to the commit.");
         }
         HEAD = readHEAD();
-        System.out.println("----------");
-        System.out.println("读取HEAD，即commit前的HEAD：" + HEAD);
         Commit cm = new Commit(ms);
         cm.save();
         String newHEAD = cm.getHashcode();
         updateBranch(newHEAD);
         updateHEAD(newHEAD);
-        deletStage();//清空stage
+        deletStage();
     }
     public static void rm(String file) {
         HEAD = readHEAD();
         File workingFILE = getWorkingFile(file);
         File stageFILE = Stage.getStageFile(file);
 
-        Commit currentCommit = Commit.readCommit(HEAD);//获得当前commit
-        HashMap BlobNode = currentCommit.getBlob();//获得当前Blob文件
+        Commit currentCommit = Commit.readCommit(HEAD);
+        HashMap BlobNode = currentCommit.getBlob();
         if (BlobNode.containsKey(file)) {
             if (stageFILE.exists()) {
-                Stage removalFILE = readObject(stageFILE, Stage.class);//从暂存区取出读取该文件
-                removalFILE.saveRemove();//把该stage文件存到remove区
-                stageFILE.delete();//暂存区清除
+                Stage removalFILE = readObject(stageFILE, Stage.class);
+                removalFILE.saveRemove();
+                stageFILE.delete();
                 if (workingFILE.exists()) {
-                    workingFILE.delete();//工作目录删除该文件
+                    workingFILE.delete();
                 }
             } else {
-                Stage removalFILE = new Stage(file);//把工作目录该文件建立Stage类
-                removalFILE.saveRemove();//把该stage文件存到remove区
+                Stage removalFILE = new Stage(file);
+                removalFILE.saveRemove();
                 if (workingFILE.exists()) {
-                    workingFILE.delete();//工作目录删除该文件
+                    workingFILE.delete();
                 }
             }
         } else {
@@ -138,7 +139,9 @@ public class Repository {
             if (tempCommit.getParent().size() == 0) {
                 break;
             }
-            String parentNode = currentCommit.getParent().get(0).toString();
+            List parentList = tempCommit.getParent();
+            Object parent1 = parentList.get(0);
+            String parentNode = parent1.toString();
             tempCommit = Commit.readCommit(parentNode);
         }
     }
@@ -150,41 +153,48 @@ public class Repository {
     }
     public static void status() {
         HEAD = readHEAD();
+        //String temp = HEAD;
+        //System.out.println(temp);
         Commit currentCommit = Commit.readCommit(HEAD);
-        //打印branch
         System.out.println("=== Branches ===");
         List branchList = plainFilenamesIn(BRANCH_DIR);
-        for (Object i : branchList) {
-            String branchName = i.toString();
-            File branchDir = join(BRANCH_DIR, branchName);
-            String branchHeadHash = readObject(branchDir, String.class);
-            if (HEAD.equals(branchHeadHash)) {
-                System.out.println("*" + branchName);
-                break;
+        if (branchList.size() != 0) {
+            for (Object i : branchList) {
+                String branchName = i.toString();
+                File branchDir = join(BRANCH_DIR, branchName);
+                String branchHeadHash = readContentsAsString(branchDir);
+                //String branchHeadHash = readObject(branchDir, String.class);
+                if (HEAD.equals(branchHeadHash)) {
+                    System.out.println("*" + branchName);
+                    break;
+                }
             }
-        }
-        for (Object i : branchList) {
-            String branchName = i.toString();
-            File branchDir = join(BRANCH_DIR, branchName);
-            String branchHeadHash = readObject(branchDir, String.class);
-            if (!HEAD.equals(branchHeadHash)) {
-                System.out.println(branchName);
+            for (Object i : branchList) {
+                String branchName = i.toString();
+                File branchDir = join(BRANCH_DIR, branchName);
+                String branchHeadHash = readContentsAsString(branchDir);
+                if (!HEAD.equals(branchHeadHash)) {
+                    System.out.println(branchName);
+                }
             }
-        }
-        //打印stage file
-        System.out.println("=== Staged Files ===");
-        List stageList = plainFilenamesIn(STAGE_DIR);
-        for (Object i : stageList) {
-            String stageName = i.toString();
-            System.out.println(stageName);
         }
         System.out.println();
-        //打印remove
+        System.out.println("=== Staged Files ===");
+        List stageList = plainFilenamesIn(STAGE_DIR);
+        if (stageList.size() != 0) {
+            for (Object i : stageList) {
+                String stageName = i.toString();
+                System.out.println(stageName);
+            }
+        }
+        System.out.println();
         System.out.println("=== Removed Files ===");
         List removeList = plainFilenamesIn(REMOVEL_DIR);
-        for (Object i : removeList) {
-            String removeName = i.toString();
-            System.out.println(removeName);
+        if (removeList.size() != 0) {
+            for (Object i : removeList) {
+                String removeName = i.toString();
+                System.out.println(removeName);
+            }
         }
         System.out.println();
         System.out.println("=== Modifications Not Staged For Commit ===");
@@ -192,67 +202,18 @@ public class Repository {
         System.out.println("=== Untracked Files ===");
         System.out.println();
     }
-    public static void checkout(String cm, int select) {//select 0 cm为branchname， 1 cm为filename
+    public static void checkout(String cm, int select) {
+        HEAD = readHEAD();
         if (select == 0) {
-            boolean flag = false;
-            List branchList = plainFilenamesIn(BRANCH_DIR);
-            for (Object i : branchList) {
-                String branchName = i.toString();
-                if (branchName == cm) {
-                    flag = true;
-                }
-            }
-            if (!flag) {
-                printError("No such branch exists.");
-            }
+            chechBranchExit(cm);
             File branchFILE = join(BRANCH_DIR, cm);
             String branchInfo = readObject(branchFILE, String.class);
             if (branchInfo == HEAD) {
                 printError("No need to checkout the current branch.");
             }
-            Commit newCommit = Commit.readCommit(branchInfo);
-            Commit currentCommit = Commit.readCommit(HEAD);
-            HashMap commitBlobNode = newCommit.getBlob();//获取跳转节点的Blob的hashmap
-            HashMap currentBlobNode = currentCommit.getBlob();//获取当前节点的Blob的HashMap
-            for (Object key : currentBlobNode.keySet()) {
-
-            }
-            for (Object key : commitBlobNode.keySet()) {
-                String keyString = key.toString();
-                if (!currentBlobNode.containsKey(keyString)) {
-                    File dir = join(CWD, keyString);
-                    if (dir.exists()) {
-                        printError("There is an untracked file in the way; delete it, or add and commit it first.");
-                    }
-                }
-            }
-            for (Object key : currentBlobNode.keySet()) {
-                if (!commitBlobNode.containsKey(key.toString())) {//跳转的commit不包含当前commit的文件
-                    File dir = join(CWD, key.toString());
-                    dir.delete();
-                }
-            }
-            for (Object key : commitBlobNode.keySet()) {//遍历跳转节点的Blob
-                String keyString = key.toString();//遍历Blob的HashMap的key，即所含有的文件名
-                Object BlobHash = commitBlobNode.get(keyString);//获得跳转节点Blob对应的hash值
-                String BlobHashString = BlobHash.toString();
-
-                if (currentBlobNode.containsKey(keyString)) {
-                    Object hash = currentBlobNode.get(keyString);//获取当前分支文件对应的哈希
-                    if (hash.equals(BlobHash)) {
-                        continue;
-                    } else {
-                        Blob newblob = Blob.readBlob(BlobHashString);//获得跳转节点的Blob
-                        writeBlob2File(newblob);
-                    }
-                } else  {
-                    Blob newblob = Blob.readBlob(BlobHashString);//获得跳转节点的Blob
-                    writeBlob2File(newblob);
-                }
-            }
-            updateHEAD(newCommit.getHashcode());
+            updateWorkingdirByCommit(branchInfo);
         } else {
-            Commit currentCommit = Commit.readCommit(HEAD);//获取当前commit信息
+            Commit currentCommit = Commit.readCommit(HEAD);
             rewriteFileByCommit(currentCommit, cm);
             deleteStageFile(cm);
         }
@@ -267,7 +228,7 @@ public class Repository {
     private static void writeBlob2File(Blob blob) {
         byte[] content = blob.getContent();
         File dir = join(CWD, blob.getFileName());
-        writeObject(dir, new String(content, StandardCharsets.UTF_8));
+        writeContents(dir, new String(content, StandardCharsets.UTF_8));
     }
     public static void checkout(String cm1, String cm2) {
         List commitList = plainFilenamesIn(Commit_DIR);
@@ -275,8 +236,10 @@ public class Repository {
         boolean flag = false;
         for (Object i : commitList) {
             String commitName = i.toString();
-            String subCommitName = commitName.substring(0, 6);
-            if (cm1 == subCommitName) {
+            int len = cm1.length();
+            String subCommitName = commitName.substring(0, len);
+//            System.out.println("the history of the commit id :" + subCommitName);
+            if (cm1.equals(subCommitName)) {
                 commit = Commit.readCommit(commitName);
                 flag = true;
                 break;
@@ -299,12 +262,80 @@ public class Repository {
         }
         branchFile.delete();
     }
+    public static void reset(String commitID) {
+        chechCommitExit(commitID);
+        updateBranch(commitID);
+        updateWorkingdirByCommit(commitID);
+    }
+    private static void chechCommitExit(String commitID) {
+        File dir = join(Commit_DIR, commitID);
+        if (!dir.exists()) {
+            printError("No commit with that id exists.");
+        }
+    }
+    private static void chechBranchExit(String branchName) {
+        boolean flag = false;
+        List branchList = plainFilenamesIn(BRANCH_DIR);
+        for (Object i : branchList) {
+            String branchFile = i.toString();
+            if (branchFile == branchName) {
+                flag = true;
+                break;
+            }
+        }
+        if (!flag) {
+            printError("No such branch exists.");
+        }
+    }
+    private static void updateWorkingdirByCommit(String newCommitID) {
+        Commit newCommit = Commit.readCommit(newCommitID);
+        Commit currentCommit = Commit.readCommit(HEAD);
+        HashMap commitBlobNode = newCommit.getBlob();
+        HashMap currentBlobNode = currentCommit.getBlob();
+        for (Object key : currentBlobNode.keySet()) {
+
+        }
+        for (Object key : commitBlobNode.keySet()) {
+            String keyString = key.toString();
+            if (!currentBlobNode.containsKey(keyString)) {
+                File dir = join(CWD, keyString);
+                if (dir.exists()) {
+                    printError("There is an untracked file in the way; delete it, or add and commit it first.");
+                }
+            }
+        }
+        for (Object key : currentBlobNode.keySet()) {
+            if (!commitBlobNode.containsKey(key.toString())) {
+                File dir = join(CWD, key.toString());
+                dir.delete();
+            }
+        }
+        for (Object key : commitBlobNode.keySet()) {
+            String keyString = key.toString();
+            Object BlobHash = commitBlobNode.get(keyString);
+            String BlobHashString = BlobHash.toString();
+
+            if (currentBlobNode.containsKey(keyString)) {
+                Object hash = currentBlobNode.get(keyString);
+                if (hash.equals(BlobHash)) {
+                    continue;
+                } else {
+                    Blob newblob = Blob.readBlob(BlobHashString);
+                    writeBlob2File(newblob);
+                }
+            } else  {
+                Blob newblob = Blob.readBlob(BlobHashString);
+                writeBlob2File(newblob);
+            }
+        }
+        updateHEAD(newCommit.getHashcode());
+    }
     private static void rewriteFileByCommit(Commit cm, String fileName) {
-        HashMap currentBlobNode = cm.getBlob();//从当前commit信息获得Blob的hashmap
+        HashMap currentBlobNode = cm.getBlob();
         if (!currentBlobNode.containsKey(fileName)) {
             printError("File does not exist in that commit.");
         }
-        Object currentFileHash = currentBlobNode.get(fileName);//从blob的hashmap中获取该文件名对应的哈希编码
+        Object currentFileHash = currentBlobNode.get(fileName);
         File currentBlobFile = join(BLOB_DIR, currentFileHash.toString());
         Blob currentBlob = readObject(currentBlobFile, Blob.class);
         writeBlob2File(currentBlob);
@@ -328,7 +359,7 @@ public class Repository {
                 printLog(commit);
             } else if (cmd == "find") {
                 String commitMs = commit.getMessage();
-                if (commitMs == ms) {
+                if (commitMs.equals(ms)) {
                     System.out.println(commit.getHashcode());
                     found = true;
                 }
@@ -356,13 +387,13 @@ public class Repository {
     private static String readHEAD() {
         return readObject(HEAD_File, String.class);
     }
-    private static void updateBranch(String HashCode) {//暂时未考虑到HEAD指针不在分支顶点的情况
+    private static void updateBranch(String HashCode) {
         List branchList = plainFilenamesIn(BRANCH_DIR);
         for (Object i : branchList) {
-            File breachFILE = join(BRANCH_DIR, i.toString());
-            String content = readObject(breachFILE, String.class);
-            if (content == HEAD) {
-                writeContents(breachFILE, HashCode);
+            File branchFILE = join(BRANCH_DIR, i.toString());
+            String content = readContentsAsString(branchFILE);
+            if (content.equals(HEAD)) {
+                writeContents(branchFILE, HashCode);
             }
         }
     }
@@ -380,7 +411,6 @@ public class Repository {
             File fileDIR = join(stageDIR, i.toString());
             fileDIR.delete();
         }
-        System.out.println("清空stage");
     }
     public static void printError(String words) {
         System.out.println(words);

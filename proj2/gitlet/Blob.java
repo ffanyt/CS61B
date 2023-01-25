@@ -38,4 +38,7 @@ public class Blob implements Serializable {
     public String getFileName() {
         return fileName;
     }
+    public String getHashCode() {
+        return this.HashCode;
+    }
 }

@@ -28,13 +28,4 @@ ${COMMIT_HEAD}
 initial commit
 
 <<<*
-# UID of second version
-D UID2 "${1}"
-# UID of current version
-D UID1 "${2}"
-> checkout ${UID1} -- wug.txt
-<<<
-= wug.txt wug.txt
-> checkout ${UID2} -- wug.txt
-<<<
-= wug.txt notwug.txt
+
