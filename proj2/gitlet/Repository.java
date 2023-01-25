@@ -85,7 +85,8 @@ public class Repository {
             printError("Please enter a commit message.");
         }
         List stageList = plainFilenamesIn(STAGE_DIR);
-        if (stageList.size() == 0) {
+        List removeStageList = plainFilenamesIn(REMOVEL_DIR);
+        if (stageList.size() == 0 && removeStageList.size() == 0) {
             printError("No changes added to the commit.");
         }
         HEAD = readHEAD();

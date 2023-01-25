@@ -93,7 +93,9 @@ public class Commit implements Serializable {
         List removeStageList = plainFilenamesIn(Repository.REMOVEL_DIR);
         for (Object i : removeStageList) {
             String removeStageFile = i.toString();
-            newMap.remove(removeStageFile);
+            if (newMap.containsKey(removeStageFile)) {
+                newMap.remove(removeStageFile);
+            }
         }
         return newMap;
     }

@@ -45,7 +45,7 @@ public class Main {
                 validArgs(args, 1);
                 Repository.log();
                 break;
-            case "global_log":
+            case "global-log":
                 Repository.checkinilization();
                 validArgs(args, 1);
                 Repository.globalLog();
@@ -104,6 +104,7 @@ public class Main {
                 Repository.checkinilization();
                 validArgs(args,2);
                 Repository.reset(args[1]);
+                break;
             default:
                 System.out.println("No command with that name exists.");
                 System.exit(0);
