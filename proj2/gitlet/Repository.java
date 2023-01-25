@@ -207,7 +207,8 @@ public class Repository {
         if (select == 0) {
             chechBranchExit(cm);
             File branchFILE = join(BRANCH_DIR, cm);
-            String branchInfo = readObject(branchFILE, String.class);
+            String branchInfo = readContentsAsString(branchFILE);
+            //String branchInfo = readObject(branchFILE, String.class);
             if (branchInfo.equals(HEAD)) {
                 printError("No need to checkout the current branch.");
             }
