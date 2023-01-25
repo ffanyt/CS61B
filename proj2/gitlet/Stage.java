@@ -3,6 +3,7 @@ package gitlet;
 import java.io.File;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 
 import static gitlet.Utils.*;
 public class Stage implements Serializable {
@@ -23,27 +24,35 @@ public class Stage implements Serializable {
         hashCode = getHashCode(this.fileName, this.content);
     }
     public void save() {
+        boolean flag = false;
         File blobFile = getBlobFile(this.hashCode);
         if (blobFile.exists()) {
             String head = Repository.getHEAD();
             Commit currentCommit = Commit.readCommit(head); //获取当前commit
             HashMap currentCommitBlob = currentCommit.getBlob(); //获取当前commit关系到的Blob文件
             if (currentCommitBlob.containsKey(this.fileName)) { //查看当前commit是否存有当前文件名的文件
-//                System.out.println("this commit has the same name of this file");
-//                Object b = currentCommitBlob.get(this.fileName);
-//                System.out.println("the same name file of hash is:" + b.toString());
                 if (currentCommitBlob.containsValue(this.hashCode)) {
                     //如果和当前Hash值相同，说明现在add的文件和commit版本相同
                     if (this.stageFile.exists()) {
                         this.stageFile.delete();
-                        return;
+                        flag = true;
                     } else {
-                        return;
+                        flag = true;
                     }
                 }
             }
         }
-        writeObject(this.stageFile, this);
+        if (!flag) {
+            writeObject(this.stageFile, this);
+        }
+        List removeStageList = plainFilenamesIn(Repository.REMOVEL_DIR);
+        for (Object i : removeStageList) {
+            String rmStageName = i.toString();
+            if (rmStageName.equals(this.fileName)) {
+                File rmStageFile = join(Repository.REMOVEL_DIR, rmStageName);
+                rmStageFile.delete();
+            }
+        }
     }
     public void saveRemove() {
         File removeFILE = join(Repository.REMOVEL_DIR, this.fileName);

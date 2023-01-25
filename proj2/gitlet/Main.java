@@ -13,7 +13,7 @@ public class Main {
             Repository.printError("Please enter a command.");
         }
         String firstArg = args[0];
-//        String firstArg = "checkout";
+//        String firstArg = "add";
         switch(firstArg) {
             case "init":
                 validArgs(args, 1);
@@ -23,7 +23,7 @@ public class Main {
                 Repository.checkinilization();
                 validArgs(args, 2);
                 String file = args[1];
-//                String file = "wug.txt";
+//                String file = "f.txt";
                 Repository.add(file);
                 break;
             case "commit":

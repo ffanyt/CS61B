@@ -72,8 +72,6 @@ public class Repository {
             System.exit(0);
         }
         Stage stageFile = new Stage(file);
-//        System.out.println("creating new stage");
-//        System.out.println("this stage's hash is:" + stageFile.getHashCode());
         stageFile.save();
     }
     public static File getWorkingFile(String file) {
