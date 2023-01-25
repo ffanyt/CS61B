@@ -102,22 +102,23 @@ public class Repository {
         Commit curCommit = Commit.readCommit(HEAD);
         HashMap blobNode = curCommit.getBlob();
         if (blobNode.containsKey(file)) {
-            if (workingFILE.exists()) {
-                Stage removalFILE = new Stage(file);
+            if (stageFILE.exists()) {
+                Stage removalFILE = readObject(stageFILE, Stage.class);
                 removalFILE.saveRemove();
-                if (stageFILE.exists()) {
-                    stageFILE.delete();
+                stageFILE.delete();
+                if (workingFILE.exists()) {
+                    workingFILE.delete();
                 }
             } else {
-                if (stageFILE.exists()) {
-                    Stage removalFILE = readObject(stageFILE, Stage.class);
+                if (workingFILE.exists()) {
+                    Stage removalFILE = new Stage(file);
                     removalFILE.saveRemove();
-                    stageFILE.delete();
+                    workingFILE.delete();
                 } else {
-                    Object blobFileName = blobNode.get(file);
-                    Blob rmBlob = Blob.readBlob(blobFileName.toString());
-                    Stage removeStage = new Stage(rmBlob);
-                    removeStage.saveRemove();
+                    Object blobNameOfFile = blobNode.get(file);
+                    Blob blob = Blob.readBlob(blobNameOfFile.toString());
+                    Stage rmStage = new Stage(blob);
+                    rmStage.saveRemove();
                 }
             }
         } else {
@@ -300,7 +301,8 @@ public class Repository {
             if (!currentBlobNode.containsKey(keyString)) {
                 File dir = join(CWD, keyString);
                 if (dir.exists()) {
-                    printError("There is an untracked file in the way; delete it, or add and commit it first.");
+                    printError("There is an untracked file in the way; " +
+                            "delete it, or add and commit it first.");
                 }
             }
         }
