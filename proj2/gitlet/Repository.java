@@ -1,6 +1,5 @@
 package gitlet;
 
-import javax.swing.text.Style;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -8,17 +7,16 @@ import java.util.List;
 
 import static gitlet.Utils.*;
 
-// TODO: any imports you need here
+
 
 /** Represents a gitlet repository.
- *  TODO: It's a good idea to give a description here of what else this Class
+ *
  *  does at a high level.
  *
  *  @author TODO
  */
 public class Repository {
     /**
-     * TODO: add instance variables here.
      *
      * List all instance variables of the Repository class here with a useful
      * comment above them describing what that variable represents and how that
@@ -32,12 +30,11 @@ public class Repository {
     public static final File BLOB_DIR = join(GITLET_DIR, "blob");
     public static final File STAGE_DIR = join(GITLET_DIR, "stage");
     public static final File BRANCH_DIR = join(GITLET_DIR, "branch");
-    public static final File HEAD_File = join(GITLET_DIR, "HEAD");
-    public static final File Commit_DIR = join(GITLET_DIR, "commit");
+    public static final File HEAD_FILE = join(GITLET_DIR, "HEAD");
+    public static final File COMMIT_DIR = join(GITLET_DIR, "commit");
     public static final File REMOVEL_DIR = join(GITLET_DIR, "remove");
-    public static Commit current_commit;
-    public static String HEAD;
-    /* TODO: fill in the rest of this class. */
+    private static Commit currentCommit;
+    private static String HEAD;
     public static void Init() {
         if (GITLET_DIR.exists()) {
             System.out.println("A Gitlet version-control system already exists in the current directory.");
@@ -47,24 +44,24 @@ public class Repository {
             STAGE_DIR.mkdir();
             BLOB_DIR.mkdir();
             BRANCH_DIR.mkdir();
-            Commit_DIR.mkdir();
+            COMMIT_DIR.mkdir();
             REMOVEL_DIR.mkdir();
-            Init_Commit();
-            Init_HEAD();
-            Init_Branch();
+            init_Commit();
+            init_HEAD();
+            init_Branch();
         }
     }
-    public static void Init_Branch() {
+    public static void init_Branch() {
         File master = join(BRANCH_DIR, "master");
-        writeContents(master, current_commit.getHashcode());
+        writeContents(master, currentCommit.getHashcode());
     }
-    public static void Init_HEAD() {
-        HEAD = current_commit.getHashcode();
-        writeObject(HEAD_File, HEAD);
+    public static void init_HEAD() {
+        HEAD = currentCommit.getHashcode();
+        writeObject(HEAD_FILE, HEAD);
     }
-    public static void Init_Commit() {
-        current_commit = new Commit();
-        current_commit.save();
+    public static void init_Commit() {
+        currentCommit = new Commit();
+        currentCommit.save();
     }
     public static void add(String file) {
         checkinilization();
@@ -84,7 +81,7 @@ public class Repository {
     }
     public static void commit(String ms) {
         checkinilization();
-        if (ms == "") {
+        if (ms.equals("")) {
             printError("Please enter a commit message.");
         }
         List stageList = plainFilenamesIn(STAGE_DIR);
@@ -105,8 +102,8 @@ public class Repository {
         File stageFILE = Stage.getStageFile(file);
 
         Commit currentCommit = Commit.readCommit(HEAD);
-        HashMap BlobNode = currentCommit.getBlob();
-        if (BlobNode.containsKey(file)) {
+        HashMap blobNode = currentCommit.getBlob();
+        if (blobNode.containsKey(file)) {
             if (stageFILE.exists()) {
                 Stage removalFILE = readObject(stageFILE, Stage.class);
                 removalFILE.saveRemove();
@@ -145,7 +142,7 @@ public class Repository {
             tempCommit = Commit.readCommit(parentNode);
         }
     }
-    public static void global_log() {
+    public static void global_Log() {
         printORfind("print", "");
     }
     public static void find(String ms) {
@@ -208,7 +205,7 @@ public class Repository {
             chechBranchExit(cm);
             File branchFILE = join(BRANCH_DIR, cm);
             String branchInfo = readObject(branchFILE, String.class);
-            if (branchInfo == HEAD) {
+            if (branchInfo.equals(HEAD)) {
                 printError("No need to checkout the current branch.");
             }
             updateWorkingdirByCommit(branchInfo);
@@ -231,7 +228,7 @@ public class Repository {
         writeContents(dir, new String(content, StandardCharsets.UTF_8));
     }
     public static void checkout(String cm1, String cm2) {
-        List commitList = plainFilenamesIn(Commit_DIR);
+        List commitList = plainFilenamesIn(COMMIT_DIR);
         Commit commit = new Commit();
         boolean flag = false;
         for (Object i : commitList) {
@@ -251,13 +248,13 @@ public class Repository {
         rewriteFileByCommit(commit, cm2);
         deleteStageFile(cm2);
     }
-    public static void rm_branch(String branchName) {
+    public static void rm_Branch(String branchName) {
         File branchFile = join(BRANCH_DIR, branchName);
         if (!branchFile.exists()) {
             printError("A branch with that name does not exist.");
         }
         String branchHash = readObject(branchFile, String.class);
-        if (branchHash == HEAD) {
+        if (branchHash.equals(HEAD)) {
             printError("Cannot remove the current branch.");
         }
         branchFile.delete();
@@ -268,7 +265,7 @@ public class Repository {
         updateWorkingdirByCommit(commitID);
     }
     private static void chechCommitExit(String commitID) {
-        File dir = join(Commit_DIR, commitID);
+        File dir = join(COMMIT_DIR, commitID);
         if (!dir.exists()) {
             printError("No commit with that id exists.");
         }
@@ -278,7 +275,7 @@ public class Repository {
         List branchList = plainFilenamesIn(BRANCH_DIR);
         for (Object i : branchList) {
             String branchFile = i.toString();
-            if (branchFile == branchName) {
+            if (branchFile.equals(branchName)) {
                 flag = true;
                 break;
             }
@@ -287,14 +284,11 @@ public class Repository {
             printError("No such branch exists.");
         }
     }
-    private static void updateWorkingdirByCommit(String newCommitID) {
+    private static void updateWorkingdirByCommit(String newCommitID) { ////bug
         Commit newCommit = Commit.readCommit(newCommitID);
         Commit currentCommit = Commit.readCommit(HEAD);
         HashMap commitBlobNode = newCommit.getBlob();
         HashMap currentBlobNode = currentCommit.getBlob();
-        for (Object key : currentBlobNode.keySet()) {
-
-        }
         for (Object key : commitBlobNode.keySet()) {
             String keyString = key.toString();
             if (!currentBlobNode.containsKey(keyString)) {
@@ -313,18 +307,18 @@ public class Repository {
         for (Object key : commitBlobNode.keySet()) {
             String keyString = key.toString();
             Object BlobHash = commitBlobNode.get(keyString);
-            String BlobHashString = BlobHash.toString();
+            String blobHashString = BlobHash.toString();
 
             if (currentBlobNode.containsKey(keyString)) {
                 Object hash = currentBlobNode.get(keyString);
                 if (hash.equals(BlobHash)) {
                     continue;
                 } else {
-                    Blob newblob = Blob.readBlob(BlobHashString);
+                    Blob newblob = Blob.readBlob(blobHashString);
                     writeBlob2File(newblob);
                 }
             } else  {
-                Blob newblob = Blob.readBlob(BlobHashString);
+                Blob newblob = Blob.readBlob(blobHashString);
                 writeBlob2File(newblob);
             }
         }
@@ -348,16 +342,16 @@ public class Repository {
         dir.delete();
     }
     private static void printORfind(String cmd, String ms) {
-        List commitList = plainFilenamesIn(Commit_DIR);
+        List commitList = plainFilenamesIn(COMMIT_DIR);
         File commitFILE;
         Commit commit;
         boolean found = false;
         for (Object i : commitList) {
-            commitFILE = join(Commit_DIR, i.toString());
+            commitFILE = join(COMMIT_DIR, i.toString());
             commit = readObject(commitFILE, Commit.class);
-            if (cmd == "print") {
+            if (cmd.equals("print")) {
                 printLog(commit);
-            } else if (cmd == "find") {
+            } else if (cmd.equals("find")) {
                 String commitMs = commit.getMessage();
                 if (commitMs.equals(ms)) {
                     System.out.println(commit.getHashcode());
@@ -365,7 +359,7 @@ public class Repository {
                 }
             }
         }
-        if (cmd == "find" && found == false) {
+        if (cmd.equals("find") && found == false) {
             printError("Found no commit with that message.");
         }
     }
@@ -385,21 +379,21 @@ public class Repository {
         return true;
     }
     private static String readHEAD() {
-        return readObject(HEAD_File, String.class);
+        return readObject(HEAD_FILE, String.class);
     }
-    private static void updateBranch(String HashCode) {
+    private static void updateBranch(String hashCode) {
         List branchList = plainFilenamesIn(BRANCH_DIR);
         for (Object i : branchList) {
             File branchFILE = join(BRANCH_DIR, i.toString());
             String content = readContentsAsString(branchFILE);
             if (content.equals(HEAD)) {
-                writeContents(branchFILE, HashCode);
+                writeContents(branchFILE, hashCode);
             }
         }
     }
-    private static void updateHEAD(String HashCode) {
-        HEAD = HashCode;
-        writeObject(HEAD_File, HEAD);
+    private static void updateHEAD(String hashCode) {
+        HEAD = hashCode;
+        writeObject(HEAD_FILE, HEAD);
     }
     private static String readMaster() {
         return readObject(join(BRANCH_DIR, "master"), String.class);
@@ -415,5 +409,8 @@ public class Repository {
     public static void printError(String words) {
         System.out.println(words);
         System.exit(0);
+    }
+    public static String getHEAD() {
+        return HEAD;
     }
 }

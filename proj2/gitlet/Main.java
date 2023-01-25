@@ -9,7 +9,6 @@ public class Main {
      *  <COMMAND> <OPERAND1> <OPERAND2> ... 
      */
     public static void main(String[] args) {
-        // TODO: what if args is empty?
         String[] arg = new String[3];
         arg[0] = "checkout";
         arg[1] = "--";
@@ -18,12 +17,10 @@ public class Main {
 //        String firstArg = "checkout";
         switch(firstArg) {
             case "init":
-                // TODO: handle the `init` command
                 validArgs(args, 1);
                 Repository.Init();
                 break;
             case "add":
-                // TODO: handle the `add [filename]` command
                 Repository.checkinilization();
                 validArgs(args, 2);
                 String file = args[1];
@@ -52,7 +49,7 @@ public class Main {
             case "global_log":
                 Repository.checkinilization();
                 validArgs(args, 1);
-                Repository.global_log();
+                Repository.global_Log();
                 break;
             case "find":
                 Repository.checkinilization();
@@ -102,7 +99,7 @@ public class Main {
             case "rm-branch":
                 Repository.checkinilization();
                 validArgs(args, 2);
-                Repository.rm_branch(args[1]);
+                Repository.rm_Branch(args[1]);
                 break;
             case "reset":
                 Repository.checkinilization();

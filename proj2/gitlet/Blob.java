@@ -10,16 +10,16 @@ public class Blob implements Serializable {
     private String fileName;
     private File Blob_FILE;
     //private byte[] content;
-    private String HashCode;
+    private String hashCode;
     private byte[] content;
     public Blob(String file) {
         this.fileName = file;
         File stageFILE = Stage.getStageFile(file);
         Stage newStageFILE = readObject(stageFILE, Stage.class);
         //this.content = newStageFILE.getContent();
-        this.HashCode = newStageFILE.getHashCode();
+        this.hashCode = newStageFILE.getHashCode();
         content = newStageFILE.getContent();
-        Blob_FILE = getBlobtFile(this.HashCode);
+        Blob_FILE = getBlobtFile(this.hashCode);
     }
     public static File getBlobtFile(String file) {
         return join(Repository.BLOB_DIR, file);
@@ -39,6 +39,6 @@ public class Blob implements Serializable {
         return fileName;
     }
     public String getHashCode() {
-        return this.HashCode;
+        return this.hashCode;
     }
 }
