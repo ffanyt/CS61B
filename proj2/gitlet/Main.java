@@ -9,10 +9,9 @@ public class Main {
      *  <COMMAND> <OPERAND1> <OPERAND2> ... 
      */
     public static void main(String[] args) {
-        String[] arg = new String[3];
-        arg[0] = "checkout";
-        arg[1] = "--";
-        arg[2] = "123.txt";
+        if (args.length == 0) {
+            Repository.printError("Please enter a command.");
+        }
         String firstArg = args[0];
 //        String firstArg = "checkout";
         switch(firstArg) {

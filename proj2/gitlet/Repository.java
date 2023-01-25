@@ -228,15 +228,19 @@ public class Repository {
         writeContents(dir, new String(content, StandardCharsets.UTF_8));
     }
     public static void checkout(String cm1, String cm2) {
+        Commit commit = checkCommitID(cm1);
+        rewriteFileByCommit(commit, cm2);
+        deleteStageFile(cm2);
+    }
+    private static Commit checkCommitID(String cmID) {
         List commitList = plainFilenamesIn(COMMIT_DIR);
-        Commit commit = new Commit();
         boolean flag = false;
+        Commit commit = new Commit();
         for (Object i : commitList) {
             String commitName = i.toString();
-            int len = cm1.length();
+            int len = cmID.length();
             String subCommitName = commitName.substring(0, len);
-//            System.out.println("the history of the commit id :" + subCommitName);
-            if (cm1.equals(subCommitName)) {
+            if (cmID.equals(subCommitName)) {
                 commit = Commit.readCommit(commitName);
                 flag = true;
                 break;
@@ -245,8 +249,7 @@ public class Repository {
         if (!flag) {
             printError("No commit with that id exists.");
         }
-        rewriteFileByCommit(commit, cm2);
-        deleteStageFile(cm2);
+        return commit;
     }
     public static void rmBranch(String branchName) {
         File branchFile = join(BRANCH_DIR, branchName);
@@ -260,6 +263,7 @@ public class Repository {
         branchFile.delete();
     }
     public static void reset(String commitID) {
+        HEAD = readHEAD();
         chechCommitExit(commitID);
         updateBranch(commitID);
         updateWorkingdirByCommit(commitID);
