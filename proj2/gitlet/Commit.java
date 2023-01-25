@@ -97,6 +97,7 @@ public class Commit implements Serializable {
                 newMap.remove(removeStageFile);
             }
         }
+        Repository.REMOVEL_DIR.delete();
         return newMap;
     }
     private String caltimestamp(Date time) {

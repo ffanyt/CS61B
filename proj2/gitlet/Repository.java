@@ -37,8 +37,7 @@ public class Repository {
     private static String HEAD;
     public static void init() {
         if (GITLET_DIR.exists()) {
-            System.out.println("A Gitlet version-control system already exists in the current directory.");
-            System.exit(0);
+            printError("A Gitlet version-control system already exists in the current directory.");
         } else {
             GITLET_DIR.mkdir();
             STAGE_DIR.mkdir();
@@ -103,18 +102,22 @@ public class Repository {
         Commit curCommit = Commit.readCommit(HEAD);
         HashMap blobNode = curCommit.getBlob();
         if (blobNode.containsKey(file)) {
-            if (stageFILE.exists()) {
-                Stage removalFILE = readObject(stageFILE, Stage.class);
-                removalFILE.saveRemove();
-                stageFILE.delete();
-                if (workingFILE.exists()) {
-                    workingFILE.delete();
-                }
-            } else {
+            if (workingFILE.exists()) {
                 Stage removalFILE = new Stage(file);
                 removalFILE.saveRemove();
-                if (workingFILE.exists()) {
-                    workingFILE.delete();
+                if (stageFILE.exists()) {
+                    stageFILE.delete();
+                }
+            } else {
+                if (stageFILE.exists()) {
+                    Stage removalFILE = readObject(stageFILE, Stage.class);
+                    removalFILE.saveRemove();
+                    stageFILE.delete();
+                } else {
+                    Object blobFileName = blobNode.get(file);
+                    Blob rmBlob = Blob.readBlob(blobFileName.toString());
+                    Stage removeStage = new Stage(rmBlob);
+                    removeStage.saveRemove();
                 }
             }
         } else {

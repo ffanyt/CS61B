@@ -14,14 +14,16 @@ public class Stage implements Serializable {
     private String hashCode;
     public Stage(String file) {
         File workingFILE = Repository.getWorkingFile(file);
-//        System.out.println("the dir:" + workingFILE);
         this.content = readContents(workingFILE);
-//        String a = new String(content, StandardCharsets.UTF_8);
-//        System.out.println(a);
-//        contentAsString = content.toString();
         fileName = file;
         stageFile = getStageFile(fileName);
         hashCode = getHashCode(this.fileName, this.content);
+    }
+    public Stage(Blob blob) {
+        this.content = blob.getContent();
+        this.fileName = blob.getFileName();
+        this.hashCode = blob.getHashCode();
+        this.stageFile = getStageFile(this.fileName);
     }
     public void save() {
         boolean flag = false;
