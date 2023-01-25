@@ -110,15 +110,10 @@ public class Repository {
                     workingFILE.delete();
                 }
             } else {
+                Stage removalFILE = new Stage(file);
+                removalFILE.saveRemove();
                 if (workingFILE.exists()) {
-                    Stage removalFILE = new Stage(file);
-                    removalFILE.saveRemove();
                     workingFILE.delete();
-                } else {
-                    Object blobNameOfFile = blobNode.get(file);
-                    Blob blob = Blob.readBlob(blobNameOfFile.toString());
-                    Stage rmStage = new Stage(blob);
-                    rmStage.saveRemove();
                 }
             }
         } else {
