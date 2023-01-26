@@ -264,7 +264,7 @@ public class Repository {
         branchFile = join(BRANCH_DIR, branchName);
         branchFile.delete();
     }
-    public static void reset(String commitID) {//要把对应的branch指示的头提前
+    public static void reset(String commitID) { //要把对应的branch指示的头提前
         HEAD = readHEAD();
         String fullCommitID = updateBranch(commitID);
         updateWorkingdirByCommit(fullCommitID);
@@ -431,5 +431,8 @@ public class Repository {
     }
     public static String getHEAD() {
         return HEAD;
+    }
+    public static void merge(String branchName) {
+
     }
 }
