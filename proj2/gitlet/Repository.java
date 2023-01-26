@@ -31,10 +31,12 @@ public class Repository {
     public static final File STAGE_DIR = join(GITLET_DIR, "stage");
     public static final File BRANCH_DIR = join(GITLET_DIR, "branch");
     public static final File HEAD_FILE = join(GITLET_DIR, "HEAD");
+    public static final File HEAD_BRANCH_FILE = join(GITLET_DIR, "HEAD_BRANCH");
     public static final File COMMIT_DIR = join(GITLET_DIR, "commit");
     public static final File REMOVEL_DIR = join(GITLET_DIR, "remove");
     private static Commit currentCommit;
     private static String HEAD;
+    private static String HEAD_BRANCH;
     public static void init() {
         if (GITLET_DIR.exists()) {
             printError("A Gitlet version-control system already exists in the current directory.");
@@ -57,6 +59,8 @@ public class Repository {
     public static void initHEAD() {
         HEAD = currentCommit.getHashcode();
         writeObject(HEAD_FILE, HEAD);
+        HEAD_BRANCH = "master";
+        writeContents(HEAD_BRANCH_FILE, HEAD_FILE);
     }
     public static void initCommit() {
         currentCommit = new Commit();
@@ -206,13 +210,11 @@ public class Repository {
         HEAD = readHEAD();
         if (select == 0) {
             chechBranchExit(cm);
+            checkCurrentBranch(cm);
             File branchFILE = join(BRANCH_DIR, cm);
             String branchInfo = readContentsAsString(branchFILE);
-            //String branchInfo = readObject(branchFILE, String.class);
-            if (branchInfo.equals(HEAD)) {
-                printError("No need to checkout the current branch.");
-            }
             updateWorkingdirByCommit(branchInfo);
+            updateBranch(cm);
         } else {
             Commit curCommit = Commit.readCommit(HEAD);
             rewriteFileByCommit(curCommit, cm);
@@ -257,14 +259,9 @@ public class Repository {
         return commit;
     }
     public static void rmBranch(String branchName) {
+        chechBranchExit(branchName);
+        checkCurrentBranch(branchName);
         File branchFile = join(BRANCH_DIR, branchName);
-        if (!branchFile.exists()) {
-            printError("A branch with that name does not exist.");
-        }
-        String branchHash = readObject(branchFile, String.class);
-        if (branchHash.equals(HEAD)) {
-            printError("Cannot remove the current branch.");
-        }
         branchFile.delete();
     }
     public static void reset(String commitID) {
@@ -279,21 +276,19 @@ public class Repository {
             printError("No commit with that id exists.");
         }
     }
-    private static void chechBranchExit(String branchName) {
-        boolean flag = false;
-        List branchList = plainFilenamesIn(BRANCH_DIR);
-        for (Object i : branchList) {
-            String branchFile = i.toString();
-            if (branchFile.equals(branchName)) {
-                flag = true;
-                break;
-            }
+    private static void checkCurrentBranch(String branchName) {
+        HEAD_BRANCH = readContentsAsString(HEAD_BRANCH_FILE);
+        if (branchName.equals(HEAD_BRANCH)) {
+            printError("No need to checkout the current branch.");
         }
-        if (!flag) {
+    }
+    private static void chechBranchExit(String branchName) {
+        File branchFile = join(BRANCH_DIR, branchName);
+        if (!branchFile.exists()) {
             printError("No such branch exists.");
         }
     }
-    private static void updateWorkingdirByCommit(String newCommitID) { ////bug
+    private static void updateWorkingdirByCommit(String newCommitID) {
         Commit newCommit = Commit.readCommit(newCommitID);
         Commit curCommit = Commit.readCommit(HEAD);
         HashMap commitBlobNode = newCommit.getBlob();
@@ -374,7 +369,10 @@ public class Repository {
             printError("Found no commit with that message.");
         }
     }
-
+    private static void updateHeadBranch(String branchName) {
+        HEAD_BRANCH = branchName;
+        writeContents(HEAD_BRANCH_FILE, HEAD_BRANCH);
+    }
     private static void printLog(Commit printcommit) {
         System.out.println("===");
         System.out.println("commit " + printcommit.getHashcode());
