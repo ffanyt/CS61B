@@ -60,7 +60,7 @@ public class Repository {
         HEAD = currentCommit.getHashcode();
         writeObject(HEAD_FILE, HEAD);
         HEAD_BRANCH = "master";
-        writeContents(HEAD_BRANCH_FILE, HEAD_FILE);
+        writeContents(HEAD_BRANCH_FILE, HEAD_BRANCH);
     }
     public static void initCommit() {
         currentCommit = new Commit();
@@ -157,29 +157,22 @@ public class Repository {
     }
     public static void status() {
         HEAD = readHEAD();
-        //String temp = HEAD;
-        //System.out.println(temp);
+        HEAD_BRANCH = readContentsAsString(HEAD_BRANCH_FILE);
         Commit curCommit = Commit.readCommit(HEAD);
         System.out.println("=== Branches ===");
         List branchList = plainFilenamesIn(BRANCH_DIR);
         if (branchList.size() != 0) {
+            System.out.println("*" + HEAD_BRANCH);
             for (Object i : branchList) {
                 String branchName = i.toString();
                 File branchDir = join(BRANCH_DIR, branchName);
                 String branchHeadHash = readContentsAsString(branchDir);
-                //String branchHeadHash = readObject(branchDir, String.class);
-                if (HEAD.equals(branchHeadHash)) {
-                    System.out.println("*" + branchName);
-                    break;
-                }
-            }
-            for (Object i : branchList) {
-                String branchName = i.toString();
-                File branchDir = join(BRANCH_DIR, branchName);
-                String branchHeadHash = readContentsAsString(branchDir);
-                if (!HEAD.equals(branchHeadHash)) {
+                if (!branchName.equals(HEAD_BRANCH)) {
                     System.out.println(branchName);
                 }
+//                if (!HEAD.equals(branchHeadHash)) {
+//                    System.out.println(branchName);
+//                }
             }
         }
         System.out.println();
@@ -214,7 +207,7 @@ public class Repository {
             File branchFILE = join(BRANCH_DIR, cm);
             String branchInfo = readContentsAsString(branchFILE);
             updateWorkingdirByCommit(branchInfo);
-            updateBranch(cm);
+            updateHeadBranch(cm);
         } else {
             Commit curCommit = Commit.readCommit(HEAD);
             rewriteFileByCommit(curCommit, cm);
