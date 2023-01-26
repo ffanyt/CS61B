@@ -91,6 +91,7 @@ public class Repository {
             printError("No changes added to the commit.");
         }
         HEAD = readHEAD();
+        HEAD_BRANCH = readContentsAsString(HEAD_BRANCH_FILE);
         Commit cm = new Commit(ms);
         cm.save();
         String newHEAD = cm.getHashcode();
@@ -253,7 +254,10 @@ public class Repository {
     }
     public static void rmBranch(String branchName) {
         chechBranchExit(branchName);
-        checkCurrentBranch(branchName);
+        HEAD_BRANCH = readContentsAsString(HEAD_BRANCH_FILE);
+        if (branchName.equals(HEAD_BRANCH)) {
+            printError("Cannot remove the current branch.");
+        }
         File branchFile = join(BRANCH_DIR, branchName);
         branchFile.delete();
     }
@@ -386,9 +390,10 @@ public class Repository {
     private static void updateBranch(String hashCode) {
         List branchList = plainFilenamesIn(BRANCH_DIR);
         for (Object i : branchList) {
-            File branchFILE = join(BRANCH_DIR, i.toString());
+            String name = i.toString();
+            File branchFILE = join(BRANCH_DIR, name);
             String content = readContentsAsString(branchFILE);
-            if (content.equals(HEAD)) {
+            if (name.equals(HEAD_BRANCH)) {
                 writeContents(branchFILE, hashCode);
             }
         }
