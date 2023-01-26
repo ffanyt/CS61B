@@ -264,15 +264,16 @@ public class Repository {
         branchFile = join(BRANCH_DIR, branchName);
         branchFile.delete();
     }
-    public static void reset(String commitID) {
+    public static void reset(String commitID) {//要把对应的branch指示的头提前
         HEAD = readHEAD();
-        updateBranch(commitID);
-        updateWorkingdirByCommit(commitID);
+        String fullCommitID = updateBranch(commitID);
+        updateWorkingdirByCommit(fullCommitID);
         List stageList = plainFilenamesIn(STAGE_DIR);
         for (Object i : stageList) {
             File stageFile = join(STAGE_DIR, i.toString());
             stageFile.delete();
         }
+        updateHEAD(fullCommitID);
     }
     private static void checkCurrentBranch(String branchName) {
         HEAD_BRANCH = readContentsAsString(HEAD_BRANCH_FILE);
@@ -388,8 +389,9 @@ public class Repository {
     private static String readHEAD() {
         return readObject(HEAD_FILE, String.class);
     }
-    private static void updateBranch(String hashCode) {
+    private static String updateBranch(String hashCode) {
         List branchList = plainFilenamesIn(BRANCH_DIR);
+        HEAD_BRANCH = readContentsAsString(HEAD_BRANCH_FILE);
         for (Object i : branchList) {
             String name = i.toString();
             File branchFILE = join(BRANCH_DIR, name);
@@ -398,12 +400,15 @@ public class Repository {
                     Commit commit = checkCommitID(hashCode);
                     String fullHashCode = commit.getHashcode();
                     writeContents(branchFILE, fullHashCode);
+                    return fullHashCode;
                 } else {
                     writeContents(branchFILE, hashCode);
+                    return hashCode;
                 }
 
             }
         }
+        return "";
     }
     private static void updateHEAD(String hashCode) {
         HEAD = hashCode;
