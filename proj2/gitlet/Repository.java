@@ -220,11 +220,12 @@ public class Repository {
         }
     }
     public static void branch(String branchName) {
+        HEAD = readHEAD();
         File branchFile = join(BRANCH_DIR, branchName);
         if (branchFile.exists()) {
             printError("A branch with that name already exists.");
         }
-        writeObject(branchFile, HEAD);
+        writeContents(branchFile, HEAD);
     }
     private static void writeBlob2File(Blob blob) {
         byte[] content = blob.getContent();
