@@ -253,12 +253,15 @@ public class Repository {
         return commit;
     }
     public static void rmBranch(String branchName) {
-        chechBranchExit(branchName);
+        File branchFile = join(BRANCH_DIR, branchName);
+        if (!branchFile.exists()) {
+            printError("A branch with that name does not exist.");
+        }
         HEAD_BRANCH = readContentsAsString(HEAD_BRANCH_FILE);
         if (branchName.equals(HEAD_BRANCH)) {
             printError("Cannot remove the current branch.");
         }
-        File branchFile = join(BRANCH_DIR, branchName);
+        branchFile = join(BRANCH_DIR, branchName);
         branchFile.delete();
     }
     public static void reset(String commitID) {
