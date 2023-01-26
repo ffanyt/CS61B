@@ -266,14 +266,12 @@ public class Repository {
     }
     public static void reset(String commitID) {
         HEAD = readHEAD();
-        chechCommitExit(commitID);
         updateBranch(commitID);
         updateWorkingdirByCommit(commitID);
-    }
-    private static void chechCommitExit(String commitID) {
-        File dir = join(COMMIT_DIR, commitID);
-        if (!dir.exists()) {
-            printError("No commit with that id exists.");
+        List stageList = plainFilenamesIn(STAGE_DIR);
+        for (Object i : stageList) {
+            File stageFile = join(STAGE_DIR, i.toString());
+            stageFile.delete();
         }
     }
     private static void checkCurrentBranch(String branchName) {
@@ -395,9 +393,15 @@ public class Repository {
         for (Object i : branchList) {
             String name = i.toString();
             File branchFILE = join(BRANCH_DIR, name);
-            String content = readContentsAsString(branchFILE);
             if (name.equals(HEAD_BRANCH)) {
-                writeContents(branchFILE, hashCode);
+                if (hashCode.length() < 40) {
+                    Commit commit = checkCommitID(hashCode);
+                    String fullHashCode = commit.getHashcode();
+                    writeContents(branchFILE, fullHashCode);
+                } else {
+                    writeContents(branchFILE, hashCode);
+                }
+
             }
         }
     }
