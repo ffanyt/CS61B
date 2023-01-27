@@ -514,7 +514,7 @@ public class Repository {
                                 splitFileHash.equals(otherFileHash)) { //case2
                             continue;
                         } else {
-                            if (flag == false) {
+                            if (!flag) {
                                 System.out.println("Encountered a merge conflict.");
                                 flag = true;
                             }
@@ -535,8 +535,9 @@ public class Repository {
                     if (otherflag) {
                         //麻烦
                         if (headFileHash.equals(otherFileHash)) {
+                            continue;
                         } else {
-                            if (flag == false) {
+                            if (!flag) {
                                 System.out.println("Encountered a merge conflict.");
                                 flag = true;
                             }
@@ -570,7 +571,7 @@ public class Repository {
         String headContent = new String(head, StandardCharsets.UTF_8);
         String otherContent = new String(other, StandardCharsets.UTF_8);
         String result = "<<<<<<< HEAD" + "\n" + headContent + "\n" + "======="
-                + "\n" + otherContent + "\n" + ">>>>>>>";
+                + "\n" + otherContent + "\n" + ">>>>>>>" + "\n";
         Stage a = new Stage(headBlob.getFileName(), result);
         a.save();
     }
