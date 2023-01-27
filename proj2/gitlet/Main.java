@@ -13,7 +13,7 @@ public class Main {
             Repository.printError("Please enter a command.");
         }
         String firstArg = args[0];
-//        String firstArg = "add";
+//        String firstArg = "reset";
         switch(firstArg) {
             case "init":
                 validArgs(args, 1);
@@ -65,10 +65,11 @@ public class Main {
             case "checkout":
                 Repository.checkinilization();
                 int len = args.length;
-//                int len = 4;
+//                int len = 2;
                 switch (len) {
                     case 2:
                         Repository.checkout(args[1], 0);
+//                        Repository.checkout("other", 0);
                         break;
                     case 3:
                         if (!args[1].equals("--")) {
@@ -104,6 +105,12 @@ public class Main {
                 Repository.checkinilization();
                 validArgs(args,2);
                 Repository.reset(args[1]);
+//                Repository.reset("d2c275");
+                break;
+            case "merge":
+                Repository.checkinilization();
+                validArgs(args, 2);
+                Repository.merge(args[1]);
                 break;
             default:
                 System.out.println("No command with that name exists.");
