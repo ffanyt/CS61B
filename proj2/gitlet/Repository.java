@@ -1,8 +1,5 @@
 package gitlet;
 
-
-import edu.princeton.cs.algs4.ST;
-
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -485,6 +482,7 @@ public class Repository {
         Object splitFileHash = null;
         Object headFileHash = null;
         Object otherFileHash = null;
+        boolean flag = false;
         for (Object i : allFileName) {
             String fileName = i.toString();
             if (splitBlob.containsKey(fileName)) {
@@ -508,12 +506,17 @@ public class Repository {
                         } else if (!splitFileHash.equals(headFileHash) &&
                                 splitFileHash.equals(otherFileHash)){ //case2
                         } else {
+                            if (flag == false) {
+                                System.out.println("Encountered a merge conflict.");
+                                flag = true;
+                            }
                             conflict(headFileHash.toString(), otherFileHash.toString());
                         }
                     } else {
                         if (splitFileHash.equals(headFileHash)) {
                             rmStage(headFileHash.toString()); //case4 rm
                         } else {
+                            continue;
                         }
                     }
                 } else { //case3 5
@@ -524,18 +527,20 @@ public class Repository {
                         //麻烦
                         if (headFileHash.equals(otherFileHash)) {
                         } else {
+                            if (flag == false) {
+                                System.out.println("Encountered a merge conflict.");
+                                flag = true;
+                            }
                             conflict(headFileHash.toString(), otherFileHash.toString());
                         }
                     } else {
+                        continue;
                     }
                 } else {
                     //case6
                     stage(otherFileHash.toString());
                 }
             }
-            splitFileHash = null;
-            headFileHash = null;
-            otherFileHash = null;
         }
     }
     private static void stage(String blobHash) {
@@ -549,7 +554,16 @@ public class Repository {
         stage.saveRemove();
     }
     private static void conflict(String headBlobHash, String otherBlobHash) {
-
+        Blob headBlob = Blob.readBlob(headBlobHash);
+        Blob otherBlob = Blob.readBlob(otherBlobHash);
+        byte[] head = headBlob.getContent();
+        byte[] other = otherBlob.getContent();
+        String headContent = new String(head, StandardCharsets.UTF_8);
+        String otherContent = new String(other, StandardCharsets.UTF_8);
+        String result = "<<<<<<< HEAD" + "\n" + headContent + "\n" + "======="
+                + "\n" + otherContent + "\n" + ">>>>>>>";
+        Stage a = new Stage(headBlob.getFileName(), result);
+        a.save();
     }
     private static List calAllFile(Commit split, Commit head, Commit other) {
         List allFile = new ArrayList<String>();
