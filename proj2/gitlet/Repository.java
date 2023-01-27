@@ -1,7 +1,11 @@
 package gitlet;
 
+
+import edu.princeton.cs.algs4.ST;
+
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -433,6 +437,183 @@ public class Repository {
         return HEAD;
     }
     public static void merge(String branchName) {
+        //找分裂点
+        checkStageEmpty();
+        chechBranchExit(branchName);
+        HEAD = readHEAD();
+        HEAD_BRANCH = readHeadBranch();
+        if (HEAD_BRANCH.equals(branchName)) {
+            printError("Cannot merge a branch with itself.");
+        }
+        String curHash = readHashByBrchNm(HEAD_BRANCH);
+        Commit commiHead = Commit.readCommit(curHash);
+        String givenHash = readHashByBrchNm(branchName);
+        Commit commitOther = Commit.readCommit(givenHash);
+        Commit commitSplit = findSplitPoint(commiHead, commitOther);
+        checkIf2CommitDiffBranch(commitSplit, commiHead);
+        checkIf2CommitDiffBranch(commitSplit, commitOther);
+        String message = "Merged " + branchName + " into " + HEAD_BRANCH + ".";
+        Commit mergeCommit = merge2NewCommit(commitSplit, commiHead, commitOther, message);
 
+        // GET all file name
+        //List allFileName = calAllFile(commitSplit, commiHead, commitOther);
+        mergeCommit.save();
+        updateBranch(mergeCommit.getHashcode());
+        updateHEAD(mergeCommit.getHashcode());
+        checkout(branchName, 0);
+        checkout(HEAD_BRANCH, 0);
+    }
+    private static Commit merge2NewCommit(Commit split, Commit head, Commit other, String ms) {
+        List allFileName = calAllFile(split, head, other);
+        String headHash = head.getHashcode();
+        String otherHash = other.getHashcode();
+        List parent = new ArrayList<>();
+        parent.add(headHash);
+        parent.add(otherHash);
+        updateStage(split, head, other, allFileName);
+        Commit mergeCommit = new Commit(ms);
+        return mergeCommit;
+    }
+    private static void updateStage(Commit split, Commit head, Commit other, List allFileName) {
+        HashMap splitBlob = split.getBlob();
+        HashMap headBlob = head.getBlob();
+        HashMap otherBlob = other.getBlob();
+        HashMap mergeBlob = headBlob;
+        boolean splitflag = false;
+        boolean headflag = false;
+        boolean otherflag = false;
+        Object splitFileHash = null;
+        Object headFileHash = null;
+        Object otherFileHash = null;
+        for (Object i : allFileName) {
+            String fileName = i.toString();
+            if (splitBlob.containsKey(fileName)) {
+                splitflag = true;
+                splitFileHash = splitBlob.get(fileName);
+            }
+            if (headBlob.containsKey(fileName)) {
+                headflag = true;
+                headFileHash = headBlob.get(fileName);
+            }
+            if (otherBlob.containsKey(fileName)) {
+                otherflag = true;
+                otherFileHash = otherBlob.get(fileName);
+            }
+            if (splitflag) {
+                if (headflag) {
+                    if (otherflag) {
+                        if (splitFileHash.equals(headFileHash) &&
+                                !splitFileHash.equals(otherFileHash)) { //case1
+                            stage(otherFileHash.toString()); //把other的文件stage
+                        } else if (!splitFileHash.equals(headFileHash) &&
+                                splitFileHash.equals(otherFileHash)){ //case2
+                        } else {
+                            conflict(headFileHash.toString(), otherFileHash.toString());
+                        }
+                    } else {
+                        if (splitFileHash.equals(headFileHash)) {
+                            rmStage(headFileHash.toString()); //case4 rm
+                        } else {
+                        }
+                    }
+                } else { //case3 5
+                }
+            } else {
+                if (headflag) {
+                    if (otherflag) {
+                        //麻烦
+                        if (headFileHash.equals(otherFileHash)) {
+                        } else {
+                            conflict(headFileHash.toString(), otherFileHash.toString());
+                        }
+                    } else {
+                    }
+                } else {
+                    //case6
+                    stage(otherFileHash.toString());
+                }
+            }
+            splitFileHash = null;
+            headFileHash = null;
+            otherFileHash = null;
+        }
+    }
+    private static void stage(String blobHash) {
+        Blob blob = Blob.readBlob(blobHash);
+        Stage stage = new Stage(blob);
+        stage.save();
+    }
+    private static void rmStage(String blobHash) {
+        Blob blob = Blob.readBlob(blobHash);
+        Stage stage = new Stage(blob);
+        stage.saveRemove();
+    }
+    private static void conflict(String headBlobHash, String otherBlobHash) {
+
+    }
+    private static List calAllFile(Commit split, Commit head, Commit other) {
+        List allFile = new ArrayList<String>();
+        HashMap headBlob = head.getBlob();
+        HashMap otherBlob = other.getBlob();
+        HashMap splitBlob = split.getBlob();
+        getFileFromBlob(headBlob, allFile);
+        getFileFromBlob(otherBlob, allFile);
+        getFileFromBlob(splitBlob, allFile);
+        return allFile;
+    }
+    private static void checkIf2CommitDiffBranch(Commit split, Commit given) {
+        if (split.getHashcode().equals(given.getHashcode())) {
+            printError("Given branch is an ancestor of the current branch.");
+        }
+    }
+    private static Commit findSplitPoint(Commit curCommit, Commit givenCommit) {
+        List curParentList = curCommit.getParent();
+        HashMap curParentHashM = getParentMap(curParentList);
+        List givenParentList = givenCommit.getParent();
+        HashMap givenParentHashM = getParentMap(givenParentList);
+        Object splitHash = null;
+        for (int i = 1; curParentHashM.containsKey(i); i++) {
+            Object parent = curParentHashM.get(i);
+            if (givenParentHashM.containsValue(parent.toString())) {
+                splitHash = parent; //get split Node's hashcode
+                break;
+            }
+        }
+        Commit spliCommit = Commit.readCommit(splitHash.toString());
+        return spliCommit;
+    }
+    private  static void checkStageEmpty() {
+        List stageList = plainFilenamesIn(STAGE_DIR);
+        List rmStageList = plainFilenamesIn(REMOVEL_DIR);
+        if (stageList.size() != 0 || rmStageList.size() != 0) {
+            printError("You have uncommitted changes.");
+        }
+    }
+    private static void getFileFromBlob(HashMap blobNode, List list) {
+        for (Object i : blobNode.keySet()) {
+            String key = i.toString();
+            if (!list.contains(key)) {
+                list.add(key);
+            }
+        }
+    }
+    private static HashMap getParentMap(List parentList) {
+        int count = 0;
+        HashMap parentHashMap = new HashMap<Integer, String>();
+        while (parentList.size() != 0) {
+            count += 1;
+            Object parentID = parentList.get(0);
+            parentHashMap.put(count, parentID.toString());
+            Commit curParentCommit = Commit.readCommit(parentID.toString());
+            parentList = curParentCommit.getParent();
+        }
+        return parentHashMap;
+    }
+    private static String readHeadBranch() {
+        return readContentsAsString(HEAD_BRANCH_FILE);
+    }
+    private static String readHashByBrchNm(String branchName) {
+        File branchFile = join(BRANCH_DIR, branchName);
+        return readContentsAsString(branchFile);
     }
 }
