@@ -23,6 +23,12 @@ public class Stage implements Serializable {
         stageFile = getStageFile(fileName);
         hashCode = getHashCode(this.fileName, this.content);
     }
+    public Stage(String file, String txt) {
+        fileName = file;
+        stageFile = getStageFile(fileName);
+        content = txt.getBytes();
+        hashCode = getHashCode(this.fileName, this.content);
+    }
     public Stage(Blob blob) {
         this.content = blob.getContent();
         this.hashCode = blob.getHashCode();
