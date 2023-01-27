@@ -542,7 +542,7 @@ public class Repository {
                                 System.out.println("Encountered a merge conflict.");
                                 flag = true;
                             }
-                            stage(otherFileHash);
+                            stage(otherFileHash.toString());
                         }
                     } else {
                         continue;
