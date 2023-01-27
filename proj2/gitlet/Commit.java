@@ -48,6 +48,15 @@ public class Commit implements Serializable {
         blobNode = updateBlob(parentBlob);
         hashCode = calHash();
     }
+    public Commit(String ms, List parent) {
+        message = ms;
+        Date time = new Date();
+        timestamp = caltimestamp(time);
+        parentNoed = parent;
+        HashMap parentBlob = readParentBlob();
+        blobNode = updateBlob(parentBlob);
+        hashCode = calHash();
+    }
     public void save() {
         File currentCommitFile = join(Repository.COMMIT_DIR, this.hashCode);
         writeObject(currentCommitFile, this);
@@ -86,6 +95,8 @@ public class Commit implements Serializable {
                 newBlob.save();
                 newMap.put(stageFILENAME, newBlob.getHashCode());
             }
+            File stageFile = join(Repository.STAGE_DIR, stageFILENAME);
+            stageFile.delete();
         }
 
         List removeStageList = plainFilenamesIn(Repository.REMOVEL_DIR);
