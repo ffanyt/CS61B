@@ -457,8 +457,9 @@ public class Repository {
         mergeCommit.save();
         updateBranch(mergeCommit.getHashcode());
         updateHEAD(mergeCommit.getHashcode());
+        String a = HEAD_BRANCH;
         checkout(branchName, 0);
-        checkout(HEAD_BRANCH, 0);
+        checkout(a, 0);
     }
     private static Commit merge2NewCommit(Commit split, Commit head, Commit other, String ms) {
         List allFileName = calAllFile(split, head, other);
