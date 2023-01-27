@@ -449,8 +449,8 @@ public class Repository {
         String givenHash = readHashByBrchNm(branchName);
         Commit commitOther = Commit.readCommit(givenHash);
         Commit commitSplit = findSplitPoint(commiHead, commitOther);
-        checkIf2CommitDiffBranch(commitSplit, commiHead);
-        checkIf2CommitDiffBranch(commitSplit, commitOther);
+        checkIf2SplitDiffHead(commitSplit, commiHead, branchName);
+        checkIfSplitDiffOther(commitSplit, commitOther);
         String message = "Merged " + branchName + " into " + HEAD_BRANCH + ".";
         Commit mergeCommit = merge2NewCommit(commitSplit, commiHead, commitOther, message);
 
@@ -588,7 +588,13 @@ public class Repository {
         getFileFromBlob(splitBlob, allFile);
         return allFile;
     }
-    private static void checkIf2CommitDiffBranch(Commit split, Commit given) {
+    private static void checkIf2SplitDiffHead(Commit split, Commit head, String branchName) {
+        if (split.getHashcode().equals(head.getHashcode())) {
+            checkout(branchName, 0);
+            printError("Current branch fast-forwarded.");
+        }
+    }
+    private static void checkIfSplitDiffOther(Commit split, Commit given) {
         if (split.getHashcode().equals(given.getHashcode())) {
             printError("Given branch is an ancestor of the current branch.");
         }
