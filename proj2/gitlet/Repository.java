@@ -435,7 +435,10 @@ public class Repository {
     public static void merge(String branchName) {
         //找分裂点
         checkStageEmpty();
-        chechBranchExit(branchName);
+        File branchFile = join(BRANCH_DIR, branchName);
+        if (!branchFile.exists()) {
+            printError("A branch with that name does not exist.");
+        }
         HEAD = readHEAD();
         HEAD_BRANCH = readHeadBranch();
         if (HEAD_BRANCH.equals(branchName)) {
