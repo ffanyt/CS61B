@@ -527,10 +527,26 @@ public class Repository {
                         if (splitFileHash.equals(headFileHash)) {
                             rmStage(headFileHash.toString()); //case4 rm
                         } else {
-                            continue;
+                            if (!flag) {
+                                System.out.println("Encountered a merge conflict.");
+                                flag = true;
+                            }
                         }
                     }
                 } else { //case3 5
+                    if (otherflag) {
+                        if (splitFileHash.equals(otherFileHash)) {
+                            continue;
+                        } else {
+                            if (!flag) {
+                                System.out.println("Encountered a merge conflict.");
+                                flag = true;
+                            }
+                            stage(otherFileHash);
+                        }
+                    } else {
+                        continue;
+                    }
                     continue;
                 }
             } else {
