@@ -209,13 +209,10 @@ public class Repository {
             String branchInfo = readContentsAsString(branchFILE);
             updateWorkingdirByCommit(branchInfo);
             updateHeadBranch(cm);
-        } else if (select == 1){
+        } else {
             Commit curCommit = Commit.readCommit(HEAD);
             rewriteFileByCommit(curCommit, cm);
             deleteStageFile(cm);
-        } else {
-            updateWorkingdirByCommit(cm);
-            //updateHeadBranch(cm);
         }
     }
     public static void branch(String branchName) {
@@ -508,11 +505,14 @@ public class Repository {
             if (splitflag) {
                 if (headflag) {
                     if (otherflag) {
-                        if (splitFileHash.equals(headFileHash) &&
+                        if (splitFileHash.equals(headFileHash)
+                                &&
                                 !splitFileHash.equals(otherFileHash)) { //case1
                             stage(otherFileHash.toString()); //把other的文件stage
-                        } else if (!splitFileHash.equals(headFileHash) &&
-                                splitFileHash.equals(otherFileHash)){ //case2
+                        } else if (!splitFileHash.equals(headFileHash)
+                                &&
+                                splitFileHash.equals(otherFileHash)) { //case2
+                            continue;
                         } else {
                             if (flag == false) {
                                 System.out.println("Encountered a merge conflict.");
@@ -522,13 +522,13 @@ public class Repository {
                         }
                     } else {
                         if (splitFileHash.equals(headFileHash)) {
-                            String a = headFileHash.toString();
-                            rmStage(a); //case4 rm
+                            rmStage(headFileHash.toString()); //case4 rm
                         } else {
                             continue;
                         }
                     }
                 } else { //case3 5
+                    continue;
                 }
             } else {
                 if (headflag) {
