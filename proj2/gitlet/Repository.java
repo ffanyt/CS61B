@@ -595,11 +595,13 @@ public class Repository {
     }
     private static Commit findSplitPoint(Commit curCommit, Commit givenCommit) {
         List curParentList = curCommit.getParent();
-        HashMap curParentHashM = getParentMap(curParentList);
+        String curHash = curCommit.getHashcode();
+        HashMap curParentHashM = getParentMap(curParentList, curHash);
         List givenParentList = givenCommit.getParent();
-        HashMap givenParentHashM = getParentMap(givenParentList);
+        String givenHash = givenCommit.getHashcode();
+        HashMap givenParentHashM = getParentMap(givenParentList, givenHash);
         Object splitHash = null;
-        for (int i = 1; curParentHashM.containsKey(i); i++) {
+        for (int i = 0; curParentHashM.containsKey(i); i++) {
             Object parent = curParentHashM.get(i);
             if (givenParentHashM.containsValue(parent.toString())) {
                 splitHash = parent; //get split Node's hashcode
@@ -624,9 +626,10 @@ public class Repository {
             }
         }
     }
-    private static HashMap getParentMap(List parentList) {
+    private static HashMap getParentMap(List parentList, String cur) {
         int count = 0;
         HashMap parentHashMap = new HashMap<Integer, String>();
+        parentHashMap.put(count, cur);
         while (parentList.size() != 0) {
             count += 1;
             Object parentID = parentList.get(0);
