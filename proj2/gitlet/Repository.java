@@ -476,7 +476,8 @@ public class Repository {
         Commit mergeCommit = new Commit(ms, parent);
         return mergeCommit;
     }
-    private static void updateStage(Commit split, Commit head, Commit other, List allFileName) {
+    private static void updateStage(Commit split,
+                                    Commit head, Commit other, List allFileName) {
         HashMap splitBlob = split.getBlob();
         HashMap headBlob = head.getBlob();
         HashMap otherBlob = other.getBlob();
@@ -521,7 +522,7 @@ public class Repository {
                                 System.out.println("Encountered a merge conflict.");
                                 flag = true;
                             }
-                            conflict(headFileHash.toString(), otherFileHash.toString());
+                            conflict(headFileHash.toString(), otherFileHash.toString(), true, true);
                         }
                     } else {
                         if (splitFileHash.equals(headFileHash)) {
@@ -531,6 +532,7 @@ public class Repository {
                                 System.out.println("Encountered a merge conflict.");
                                 flag = true;
                             }
+                            conflict(headFileHash.toString(), "", true, false);
                         }
                     }
                 } else { //case3 5
@@ -541,6 +543,7 @@ public class Repository {
                             if (!flag) {
                                 System.out.println("Encountered a merge conflict.");
                                 flag = true;
+                                conflict("", otherFileHash.toString(), false, true);
                             }
                             stage(otherFileHash.toString());
                         }
@@ -560,7 +563,7 @@ public class Repository {
                                 System.out.println("Encountered a merge conflict.");
                                 flag = true;
                             }
-                            conflict(headFileHash.toString(), otherFileHash.toString());
+                            conflict(headFileHash.toString(), otherFileHash.toString(), true, true);
                         }
                     } else {
                         continue;
@@ -582,17 +585,35 @@ public class Repository {
         Stage stage = new Stage(blob);
         stage.saveRemove();
     }
-    private static void conflict(String headBlobHash, String otherBlobHash) {
-        Blob headBlob = Blob.readBlob(headBlobHash);
-        Blob otherBlob = Blob.readBlob(otherBlobHash);
-        byte[] head = headBlob.getContent();
-        byte[] other = otherBlob.getContent();
-        String headContent = new String(head, StandardCharsets.UTF_8);
-        String otherContent = new String(other, StandardCharsets.UTF_8);
+    private static void conflict(String headBlobHash, String otherBlobHash, boolean head, boolean other) {
+        String headContent;
+        String otherContent;
+        Blob headBlob = null;
+        Blob otherBlob = null;
+        if (head) {
+            headBlob = Blob.readBlob(headBlobHash);
+            byte[] headBytes = headBlob.getContent();
+            headContent = new String(headBytes, StandardCharsets.UTF_8);
+        } else {
+            headContent = headBlobHash;
+        }
+        if (other) {
+            otherBlob = Blob.readBlob(otherBlobHash);
+            byte[] otherBytes = otherBlob.getContent();
+            otherContent = new String(otherBytes, StandardCharsets.UTF_8);
+        } else {
+            otherContent = otherBlobHash;
+        }
         String result = "<<<<<<< HEAD\n" + headContent + "=======\n"
                 + otherContent + ">>>>>>>\n";
-        Stage a = new Stage(headBlob.getFileName(), result);
-        a.save();
+        if (head) {
+            Stage a = new Stage(headBlob.getFileName(), result);
+            a.save();
+        } else {
+            Stage a = new Stage(otherBlob.getFileName(), result);
+            a.save();
+        }
+
     }
     private static List calAllFile(Commit split, Commit head, Commit other) {
         List allFile = new ArrayList<String>();
