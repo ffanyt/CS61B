@@ -1,11 +1,12 @@
 package gitlet;
 
+import edu.princeton.cs.algs4.Queue;
+
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Queue;
 
 import static gitlet.Utils.*;
 
@@ -674,19 +675,22 @@ public class Repository {
     }
     private static HashMap getParentMap(Commit curCommit, String cur) {
         int count = 0;
-        Queue<Commit> a = null;
-        a.add(curCommit);
+        Queue a = new Queue<String>();
+        a.enqueue(curCommit.getHashcode());
         List parentList;
         HashMap parentHashMap = new HashMap<Integer, String>();
         parentHashMap.put(count, cur);
         while (!a.isEmpty()){
             count += 1;
-            parentList = a.poll().getParent();
+            Object b = a.dequeue();
+            String hash = b.toString();
+            Commit commit = Commit.readCommit(hash);
+            parentList = commit.getParent();
             for (int i = 0; i < parentList.size(); i++) {
                 Object parentID = parentList.get(i);
                 parentHashMap.put(count, parentID.toString());
                 Commit curParentCommit = Commit.readCommit(parentID.toString());
-                a.add(curParentCommit);
+                a.enqueue(curParentCommit.getHashcode());
             }
 
         }
