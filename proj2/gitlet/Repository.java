@@ -98,7 +98,6 @@ public class Repository {
         String newHEAD = cm.getHashcode();
         updateBranch(newHEAD);
         updateHEAD(newHEAD);
-        deletStage();
     }
     public static void rm(String file) {
         HEAD = readHEAD();
@@ -210,10 +209,13 @@ public class Repository {
             String branchInfo = readContentsAsString(branchFILE);
             updateWorkingdirByCommit(branchInfo);
             updateHeadBranch(cm);
-        } else {
+        } else if (select == 1){
             Commit curCommit = Commit.readCommit(HEAD);
             rewriteFileByCommit(curCommit, cm);
             deleteStageFile(cm);
+        } else {
+            updateWorkingdirByCommit(cm);
+            //updateHeadBranch(cm);
         }
     }
     public static void branch(String branchName) {
@@ -454,22 +456,24 @@ public class Repository {
 
         // GET all file name
         //List allFileName = calAllFile(commitSplit, commiHead, commitOther);
+
         mergeCommit.save();
-        updateBranch(mergeCommit.getHashcode());
-        updateHEAD(mergeCommit.getHashcode());
-        String a = HEAD_BRANCH;
+        String temp = HEAD_BRANCH;
+        File curBranchFile = join(BRANCH_DIR, HEAD_BRANCH);
         checkout(branchName, 0);
-        checkout(a, 0);
+        writeContents(curBranchFile, mergeCommit.getHashcode());
+        checkout(temp, 0);
+        //updateHEAD(mergeCommit.getHashcode());
     }
     private static Commit merge2NewCommit(Commit split, Commit head, Commit other, String ms) {
         List allFileName = calAllFile(split, head, other);
         String headHash = head.getHashcode();
         String otherHash = other.getHashcode();
-        List parent = new ArrayList<>();
+        List parent = new ArrayList<>(); //bug
         parent.add(headHash);
         parent.add(otherHash);
         updateStage(split, head, other, allFileName);
-        Commit mergeCommit = new Commit(ms);
+        Commit mergeCommit = new Commit(ms, parent);
         return mergeCommit;
     }
     private static void updateStage(Commit split, Commit head, Commit other, List allFileName) {
@@ -485,6 +489,9 @@ public class Repository {
         Object otherFileHash = null;
         boolean flag = false;
         for (Object i : allFileName) {
+            splitflag = false;
+            headflag = false;
+            otherflag = false;
             String fileName = i.toString();
             if (splitBlob.containsKey(fileName)) {
                 splitflag = true;
@@ -515,7 +522,8 @@ public class Repository {
                         }
                     } else {
                         if (splitFileHash.equals(headFileHash)) {
-                            rmStage(headFileHash.toString()); //case4 rm
+                            String a = headFileHash.toString();
+                            rmStage(a); //case4 rm
                         } else {
                             continue;
                         }
