@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Queue;
 
 import static gitlet.Utils.*;
 
@@ -477,7 +478,8 @@ public class Repository {
         return mergeCommit;
     }
     private static void updateStage(Commit split,
-                                    Commit head, Commit other, List allFileName) {
+                                    Commit head, Commit other,
+                                    List allFileName) {
         HashMap splitBlob = split.getBlob();
         HashMap headBlob = head.getBlob();
         HashMap otherBlob = other.getBlob();
@@ -585,7 +587,8 @@ public class Repository {
         Stage stage = new Stage(blob);
         stage.saveRemove();
     }
-    private static void conflict(String headBlobHash, String otherBlobHash, boolean head, boolean other) {
+    private static void conflict(String headBlobHash,
+                                 String otherBlobHash, boolean head, boolean other) {
         String headContent;
         String otherContent;
         Blob headBlob = null;
@@ -639,10 +642,10 @@ public class Repository {
     private static Commit findSplitPoint(Commit curCommit, Commit givenCommit) {
         List curParentList = curCommit.getParent();
         String curHash = curCommit.getHashcode();
-        HashMap curParentHashM = getParentMap(curParentList, curHash);
+        HashMap curParentHashM = getParentMap(curCommit, curHash);
         List givenParentList = givenCommit.getParent();
         String givenHash = givenCommit.getHashcode();
-        HashMap givenParentHashM = getParentMap(givenParentList, givenHash);
+        HashMap givenParentHashM = getParentMap(givenCommit, givenHash);
         Object splitHash = null;
         for (int i = 0; curParentHashM.containsKey(i); i++) {
             Object parent = curParentHashM.get(i);
@@ -669,17 +672,36 @@ public class Repository {
             }
         }
     }
-    private static HashMap getParentMap(List parentList, String cur) {
+    private static HashMap getParentMap(Commit curCommit, String cur) {
         int count = 0;
+        Queue<Commit> a = null;
+        a.add(curCommit);
+        List parentList;
         HashMap parentHashMap = new HashMap<Integer, String>();
         parentHashMap.put(count, cur);
-        while (parentList.size() != 0) {
+        while (!a.isEmpty()){
             count += 1;
-            Object parentID = parentList.get(0);
-            parentHashMap.put(count, parentID.toString());
-            Commit curParentCommit = Commit.readCommit(parentID.toString());
-            parentList = curParentCommit.getParent();
+            parentList = a.poll().getParent();
+            for (int i = 0; i < parentList.size(); i++) {
+                Object parentID = parentList.get(i);
+                parentHashMap.put(count, parentID.toString());
+                Commit curParentCommit = Commit.readCommit(parentID.toString());
+                a.add(curParentCommit);
+            }
+
         }
+//        while (parentList.size() != 0) {
+//            count += 1;
+//            parentList = a.poll().getParent();
+//            for (int i = 0; i < parentList.size(); i++) {
+//                Object parentID = parentList.get(i);
+//                parentHashMap.put(count, parentID.toString());
+//                Commit curParentCommit = Commit.readCommit(parentID.toString());
+//                a.add(curParentCommit);
+//                parentList = curParentCommit.getParent();
+//            }
+//
+//        }
         return parentHashMap;
     }
     private static String readHeadBranch() {
