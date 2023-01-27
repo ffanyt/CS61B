@@ -570,8 +570,8 @@ public class Repository {
         byte[] other = otherBlob.getContent();
         String headContent = new String(head, StandardCharsets.UTF_8);
         String otherContent = new String(other, StandardCharsets.UTF_8);
-        String result = "<<<<<<< HEAD" + "\n" + headContent + "\n" + "======="
-                + "\n" + otherContent + "\n" + ">>>>>>>" + "\n";
+        String result = "<<<<<<< HEAD\n" + headContent + "=======\n"
+                + otherContent + ">>>>>>>\n";
         Stage a = new Stage(headBlob.getFileName(), result);
         a.save();
     }
