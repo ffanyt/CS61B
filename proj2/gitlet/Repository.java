@@ -474,16 +474,14 @@ public class Repository {
         List parent = new ArrayList<>(); //bug
         parent.add(headHash);
         parent.add(otherHash);
-        updateStage(split, head, other, allFileName);
+        updStg(split, head, other, allFileName);
         Commit mergeCommit = new Commit(ms, parent);
         return mergeCommit;
     }
-    private static void updateStage(Commit split,
-                                    Commit head, Commit other,
-                                    List allFileName) {
-        HashMap splitBlob = split.getBlob();
-        HashMap headBlob = head.getBlob();
-        HashMap otherBlob = other.getBlob();
+    private static void updStg(Commit sp, Commit he, Commit ot, List alFi) {
+        HashMap splitBlob = sp.getBlob();
+        HashMap headBlob = he.getBlob();
+        HashMap otherBlob = ot.getBlob();
         HashMap mergeBlob = headBlob;
         boolean splitflag = false;
         boolean headflag = false;
@@ -492,7 +490,7 @@ public class Repository {
         Object headFileHash = null;
         Object otherFileHash = null;
         boolean flag = false;
-        for (Object i : allFileName) {
+        for (Object i : alFi) {
             splitflag = false;
             headflag = false;
             otherflag = false;
@@ -680,7 +678,7 @@ public class Repository {
         List parentList;
         HashMap parentHashMap = new HashMap<Integer, String>();
         parentHashMap.put(count, cur);
-        while (!a.isEmpty()){
+        while (!a.isEmpty()) {
             count += 1;
             Object b = a.dequeue();
             String hash = b.toString();
@@ -689,8 +687,7 @@ public class Repository {
             for (int i = 0; i < parentList.size(); i++) {
                 Object parentID = parentList.get(i);
                 parentHashMap.put(count, parentID.toString());
-                Commit curParentCommit = Commit.readCommit(parentID.toString());
-                a.enqueue(curParentCommit.getHashcode());
+                a.enqueue(parentID);
             }
 
         }
