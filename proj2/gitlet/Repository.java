@@ -478,7 +478,8 @@ public class Repository {
         Commit mergeCommit = new Commit(ms, parent);
         return mergeCommit;
     }
-    private static void updStg(Commit sp, Commit he, Commit ot, List alFi) {
+    private static void updStg(Commit sp, Commit he,
+                               Commit ot, List alFi) {
         HashMap splitBlob = sp.getBlob();
         HashMap headBlob = he.getBlob();
         HashMap otherBlob = ot.getBlob();
